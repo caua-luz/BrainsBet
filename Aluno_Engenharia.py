@@ -3,6 +3,43 @@ from abc import ABC, abstractmethod
 import os
 import time
 
+def to_dict(classe) -> dict:
+    return {
+        "classe": classe.__class__.__name__,
+        "nome": classe.nome,
+        "instituicao": classe.instituicao,
+        "curso": classe.curso,
+        "braincoins": classe._braincoins,
+        "materias_cursando": [m.nome for m in classe.materias_cursando]  # apenas nomes
+    }
+
+def remover_aluno_por_nome(nome: str, arquivo="pessoas.json"):
+    try:
+        with open(arquivo, "r") as f:
+            dados = json.load(f)
+    except FileNotFoundError:
+        print("Arquivo não encontrado.")
+        return
+
+    novos_dados = [aluno for aluno in dados if aluno["nome"] != nome]
+
+    with open(arquivo, "w") as f:
+        json.dump(novos_dados, f, indent=4)
+
+
+def salvar_aluno(aluno):
+    try:
+        with open("pessoas.json", "r") as f:
+            dados = json.load(f)
+    except FileNotFoundError:
+        dados = []
+
+    dados.append(to_dict(aluno))
+
+    with open("pessoas.json", "w") as f:
+        json.dump(dados, f, indent=4)
+
+
 def limpar_tela(tempo:int)->None:
     # Se for Windows, usa 'cls'
     # Se for Linux/macOS, usa 'clear'
@@ -14,8 +51,16 @@ def registrar_no_json(nome:str,instituicao:str,Curso:str)->None:
     match Curso:
         case "Eletrica":
             Registro=AE_Eletrica(nome,instituicao)
-            #instanciar(Registro)
-COLOCAR NO PESSOAS.JSON            
+            salvar_aluno(Registro)
+        case "Civil":
+            Registro=AE_Civil(nome,instituicao)
+            salvar_aluno(Registro)
+        case "Mecanica":
+            Registro=AE_Mecanica(nome,instituicao)
+            salvar_aluno(Registro)
+        case "Aeroespacial":
+            Registro=AE_Aeroespacial(nome,instituicao)
+            salvar_aluno(Registro)
 
 def registrar()->None:
      print("Ola! Bem Vindo ao BrainsBet")
@@ -230,4 +275,4 @@ class AE_D_ADM(AE_Desafio):
         else:
             return ((posicao_torneio*numero_de_participantes*peso_materia)/10)+5    
 
-registrar()                    
+             
