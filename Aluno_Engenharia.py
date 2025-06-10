@@ -14,8 +14,11 @@ def registrar_no_json(nome:str,instituicao:str,Curso:str)->None:
         case "Eletrica":
             Registro=AE_Eletrica(nome,instituicao)
             print("Agora insira as 3 primeiras materias que vocÊ irá cursar agora:\n")
+            print("Agora insira a primeira:\n")
             Registro.alterar_materias()
+            print("Agora insira a segunda:\n")
             Registro.alterar_materias()
+            print("Agora insira a terceira:\n")
             Registro.alterar_materias()
 
 
