@@ -114,19 +114,23 @@ class torneio():
             print("Matérias que o administrador está cursando:")
             for mmateria in self.administrador.materias_cursando:
                 print(mmateria.nome)
-
-            maateria=input("Insira qual será a matéria tema do torneio das opcoes acima")
-            if maateria in self.administrador.materias_cursando:
-                self.Materia=maateria
-                limpar_tela(0)
+            maateria=input("Insira qual será a matéria tema do torneio das opcoes acima ")
+            encontrou_materia=False
+            for mmateria in self.administrador.materias_cursando:                
+                if mmateria.nome==maateria:
+                    self.materia_torneio=maateria
+                    encontrou_materia=True
+                    break
+            if encontrou_materia==True:
                 break
             else:
                 print("Nome inválido")
                 limpar_tela(1)
                 print("Tente novamente")
-                limpar_tela(1)        
+                limpar_tela(1) 
+                   
         self.Dias_passados=0
-        self.Duracao_desafio=input("Qual sera a duracao do torneio")
+        self.Duracao_desafio=input("Qual sera a duracao do torneio em dias? ")
         
         #Função auxiliar de adicionar participante
     def from_dict_torneio(dado: dict):
@@ -177,7 +181,7 @@ class torneio():
         torneioo.participantes.discard(aluno)
         atualizar_torneio_por_nome(self.nome_torneio,torneioo)    
     
-    def 
+
         
 
 
@@ -186,7 +190,7 @@ def to_dict_torneio(torneio):  # conversão do objeto Torneio para dicionário
     return {
         "administrador": to_dict(torneio.administrador),
         "nome_torneio": torneio.nome_torneio,
-        "Materia": torneio.Materia,
+        "materia_torneio": torneio.materia_torneio,
         "Dias_passados": torneio.Dias_passados,
         "Duracao_desafio": torneio.Duracao_desafio,
         "participantes": [to_dict(p) for p in torneio.participantes]
@@ -220,3 +224,7 @@ def atualizar_torneio_por_nome(nome_torneio: str, novo_torneio, arquivo="torneio
         json.dump(torneios, f, indent=4)
     print(f"Torneio '{nome_torneio}' atualizado com sucesso.")
 #--------------FUNÇÕES QUE AUXILIAM O FUNCIONAMENTO DE TORNEIO----------------------
+
+lili=AE_Civil("Lili","UFMG")
+torneioo=torneio(AE_D_ADM(lili))
+print(to_dict_torneio(torneioo))
