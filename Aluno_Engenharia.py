@@ -1,7 +1,11 @@
-from Materia import Materias_Eletrica,Materias_Aeroespacial_Civil_Mecanica
 from abc import ABC, abstractmethod
 import os
 import time
+import json
+
+from Materia import Materias_Eletrica,Materias_Aeroespacial_Civil_Mecanica
+
+
 
 def to_dict(classe) -> dict:
     return {
@@ -245,11 +249,11 @@ class AE_Mecanica(Aluno_Engenharia):
         for i in self.materias_cursando:
             print(f"{i.nome}") 
                             
-class AE_Desafio(Aluno_Engenharia):
+class AE_Desafio(AE_Aeroespacial,AE_Civil,AE_Eletrica,AE_Mecanica):
     def __init__(self, nome, instituicao):
         super().__init__(nome, instituicao)
         self._braincoins_torneio=float(0)
-        self.campeao=False
+        self._campeao=False
 
     @abstractmethod
     def _Retornar_BrainCoins_Torneio(self)->float:
@@ -258,6 +262,7 @@ class AE_Desafio(Aluno_Engenharia):
 class AE_D_Participante(AE_Desafio):
     def __init__(self, nome, instituicao):
         super().__init__(nome, instituicao)
+        self._BrainCoins_Torneio=0
 
     def _Retornar_BrainCoins_Torneio(self,posicao_torneio:int,numero_de_participantes:int,peso_materia:float)->float:
         if(self.campeao==True):
@@ -268,6 +273,7 @@ class AE_D_Participante(AE_Desafio):
 class AE_D_ADM(AE_Desafio):
     def __init__(self, nome, instituicao):
         super().__init__(nome, instituicao)
+        self._BrainCoins_Torneio=0
 
     def _Retornar_BrainCoins_Torneio(self,posicao_torneio:int,numero_de_participantes:int,peso_materia:float)->float:
         if(self.campeao==True):
@@ -275,4 +281,3 @@ class AE_D_ADM(AE_Desafio):
         else:
             return ((posicao_torneio*numero_de_participantes*peso_materia)/10)+5    
 
-             
