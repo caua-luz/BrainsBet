@@ -55,15 +55,27 @@ def registrar_no_json(nome:str,instituicao:str,Curso:str)->None:
     match Curso:
         case "Eletrica":
             Registro=AE_Eletrica(nome,instituicao)
+            Registro.inserir_materias()
+            Registro.inserir_materias()
+            Registro.inserir_materias()
             salvar_aluno(Registro)
         case "Civil":
             Registro=AE_Civil(nome,instituicao)
+            Registro.inserir_materias()
+            Registro.inserir_materias()
+            Registro.inserir_materias()
             salvar_aluno(Registro)
         case "Mecanica":
             Registro=AE_Mecanica(nome,instituicao)
+            Registro.inserir_materias()
+            Registro.inserir_materias()
+            Registro.inserir_materias()
             salvar_aluno(Registro)
         case "Aeroespacial":
             Registro=AE_Aeroespacial(nome,instituicao)
+            Registro.inserir_materias()
+            Registro.inserir_materias()
+            Registro.inserir_materias()
             salvar_aluno(Registro)
 
 def registrar()->None:
@@ -75,7 +87,7 @@ def registrar()->None:
      instituicao=input("Qual a sua instituição? ")
      while(True):
         print("Qual a sua Engenharia? ")
-        print("\nResponda com as seguintes opções\nCivil Mecanica Eletrica Aeroespacial")
+        print("\nResponda com as seguintes opções\nCivil     Mecanica    Eletrica    Aeroespacial")
         Curso=input()
         
         if Curso in ("Civil","Aeroespacial","Mecanica","Eletrica"):
@@ -85,12 +97,9 @@ def registrar()->None:
             print("Resposta Inválida")
             limpar_tela(1)
     
-    
-        
-                
-
 class Aluno_Engenharia(ABC):
     def __init__(self,nome,instituicao) -> None:
+        
         self.nome=nome
         self.curso=''
         self.instituicao=instituicao
@@ -118,15 +127,23 @@ class Aluno_Engenharia(ABC):
             self._braincoins /= valor                
 
     def inserir_materias(self)-> None:
-        limpar_tela(1)
-        print("Qual das materias abaixo deseja inserir?\n")
-        for p in self.materias:
-                print(p.nome)
-        materia=input()
-        for p in self.materias:
-                #materia existe
-                if p.nome==materia:
-                    self.materias_cursando.add(p)       
+        while(True):
+            limpar_tela(1)
+            print("Qual das materias abaixo deseja inserir?\n")
+            for p in self.materias:
+                    print(p.nome)
+            materia=input()
+
+            quebra=False
+            for p in self.materias:
+                    #materia existe
+                    if p.nome==materia:
+                        self.materias_cursando.add(p)
+                        quebra=True
+            if quebra:
+                break
+            else:
+                print("Nome invalido! insira novamente")       
 
     def remover_materias(self)-> None:
         limpar_tela(1)
@@ -163,22 +180,7 @@ class AE_Eletrica(Aluno_Engenharia):
         self.curso="Engenharia Eletrica"
         self.materias=Materias_Eletrica
         
-        print("Agora insira as 3 primeiras materias que vocÊ irá cursar agora:\n")
-        print("Agora insira a primeira:\n")
-        limpar_tela(5)
-        self.inserir_materias()
-        limpar_tela(5)
-        print("Agora insira a segunda:\n")
-        limpar_tela(5)
-        self.inserir_materias()
-        
-        print("Agora insira a terceira:\n")
-        limpar_tela(5)
-        self.inserir_materias()
-        limpar_tela(0)
-        print("Suas materias são: ")
-        for i in self.materias_cursando:
-            print(f"{i.nome}")
+
         
 class AE_Civil(Aluno_Engenharia):
     def __init__(self, nome,instituicao):
@@ -186,22 +188,7 @@ class AE_Civil(Aluno_Engenharia):
         self.curso="Engenharia Civl"
         self.materias=Materias_Aeroespacial_Civil_Mecanica
         
-        print("Agora insira as 3 primeiras materias que vocÊ irá cursar agora:\n")
-        print("Agora insira a primeira:\n")
-        limpar_tela(5)
-        self.inserir_materias()
-        limpar_tela(5)
-        print("Agora insira a segunda:\n")
-        limpar_tela(5)
-        self.inserir_materias()
         
-        print("Agora insira a terceira:\n")
-        limpar_tela(5)
-        self.inserir_materias()
-        limpar_tela(0)
-        print("Suas materias são: ")
-        for i in self.materias_cursando:
-            print(f"{i.nome}")        
 
 class AE_Aeroespacial(Aluno_Engenharia):
     def __init__(self, nome,instituicao):
@@ -209,22 +196,7 @@ class AE_Aeroespacial(Aluno_Engenharia):
         self.curso="Engenharia Aeroespacial"
         self.materias=Materias_Aeroespacial_Civil_Mecanica
         
-        print("Agora insira as 3 primeiras materias que vocÊ irá cursar agora:\n")
-        print("Agora insira a primeira:\n")
-        limpar_tela(5)
-        self.inserir_materias()
-        limpar_tela(5)
-        print("Agora insira a segunda:\n")
-        limpar_tela(5)
-        self.inserir_materias()
-        
-        print("Agora insira a terceira:\n")
-        limpar_tela(5)
-        self.inserir_materias()
-        limpar_tela(0)
-        print("Suas materias são: ")
-        for i in self.materias_cursando:
-            print(f"{i.nome}")                    
+                    
 
 class AE_Mecanica(Aluno_Engenharia):
     def __init__(self, nome,instituicao):
@@ -232,26 +204,18 @@ class AE_Mecanica(Aluno_Engenharia):
         self.curso="Engenharia Mecanica"
         self.materias=Materias_Aeroespacial_Civil_Mecanica
         
-        print("Agora insira as 3 primeiras materias que vocÊ irá cursar agora:\n")
-        print("Agora insira a primeira:\n")
-        limpar_tela(5)
-        self.inserir_materias()
-        limpar_tela(5)
-        print("Agora insira a segunda:\n")
-        limpar_tela(5)
-        self.inserir_materias()
-        
-        print("Agora insira a terceira:\n")
-        limpar_tela(5)
-        self.inserir_materias()
-        limpar_tela(0)
-        print("Suas materias são: ")
-        for i in self.materias_cursando:
-            print(f"{i.nome}") 
-                            
+ 
+
+#Esta classe parte do principio que                             
 class AE_Desafio(AE_Aeroespacial,AE_Civil,AE_Eletrica,AE_Mecanica):
-    def __init__(self, nome, instituicao):
-        super().__init__(nome, instituicao)
+    def __init__(self,Aluno_Eng):
+        self.nome=Aluno_Eng.nome
+        self.curso=Aluno_Eng.curso
+        self.instituicao=Aluno_Eng.instituicao
+        self._braincoins=Aluno_Eng._braincoins
+        self.materias=Aluno_Eng.materias
+        self.materias_cursando=Aluno_Eng.materias_cursando
+
         self._braincoins_torneio=float(0)
         self._campeao=False
 
@@ -260,8 +224,8 @@ class AE_Desafio(AE_Aeroespacial,AE_Civil,AE_Eletrica,AE_Mecanica):
         pass    
 
 class AE_D_Participante(AE_Desafio):
-    def __init__(self, nome, instituicao):
-        super().__init__(nome, instituicao)
+    def __init__(self,Aluno_Eng):
+        super().__init__(Aluno_Eng)
         self._BrainCoins_Torneio=0
 
     def _Retornar_BrainCoins_Torneio(self,posicao_torneio:int,numero_de_participantes:int,peso_materia:float)->float:
@@ -271,8 +235,8 @@ class AE_D_Participante(AE_Desafio):
             return (posicao_torneio*numero_de_participantes*peso_materia)/10
 
 class AE_D_ADM(AE_Desafio):
-    def __init__(self, nome, instituicao):
-        super().__init__(nome, instituicao)
+    def __init__(self,Aluno_Eng):
+        super().__init__(Aluno_Eng)
         self._BrainCoins_Torneio=0
 
     def _Retornar_BrainCoins_Torneio(self,posicao_torneio:int,numero_de_participantes:int,peso_materia:float)->float:
@@ -281,3 +245,4 @@ class AE_D_ADM(AE_Desafio):
         else:
             return ((posicao_torneio*numero_de_participantes*peso_materia)/10)+5    
 
+# registrar()
