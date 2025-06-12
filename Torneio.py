@@ -67,8 +67,10 @@ def remover_aluno_por_nome(nome: str, arquivo="torneio.json"):
 
 def buscar_aluno_por_nome(nome: str, arquivo="pessoas.json"):
     try:
+
         with open(arquivo, "r") as f:
             dados = json.load(f)
+
     except FileNotFoundError:
         print("Arquivo não encontrado.")
         return None
@@ -77,10 +79,12 @@ def buscar_aluno_por_nome(nome: str, arquivo="pessoas.json"):
         return None
 
     for aluno in dados:
+
         if aluno["nome"] == nome:
+
             return from_dict(aluno)
 
-    print(f"Torneio com nome '{nome}' não encontrado.")
+    print(f"aluno com nome '{nome}' não encontrado.")
     return None
 
 def buscar_torneio_por_nome(nome: str, arquivo="torneios.json"):
@@ -95,7 +99,7 @@ def buscar_torneio_por_nome(nome: str, arquivo="torneios.json"):
         return None
 
     for Torneio in dados:
-        if Torneio["nome"] == nome:
+        if Torneio.get("nome_torneio") == nome:
             return Torneio
 
     print(f"Torneio com nome '{nome}' não encontrado.")
@@ -131,55 +135,82 @@ class torneio():
                    
         self.Dias_passados=0
         self.Duracao_desafio=input("Qual sera a duracao do torneio em dias? ")
+        salvar_torneio(self)
         
-        #Função auxiliar de adicionar participante
-    def from_dict_torneio(dado: dict):
 
-        # Reconstruir o administrador com from_dict
-        administrador = from_dict(dado["administrador"])  # Usa a função inversa que você já tem
-
-        # Criar uma instância "vazia" do torneio
-        torneio = torneio.__new__(torneio)  # Cria sem chamar __init__
-
-        # Atribuir atributos manualmente
+    @classmethod
+    def from_dict_torneio(cls, dado: dict):
+        administrador = from_dict(dado["administrador"])
+        torneio = cls.__new__(cls)
         torneio.administrador = administrador
         torneio.nome_torneio = dado["nome_torneio"]
-        torneio.Materia = dado["Materia"]
+        torneio.materia_torneio = dado["materia_torneio"]  # Corrigido nome
         torneio.Dias_passados = dado.get("Dias_passados", 0)
         torneio.Duracao_desafio = dado["Duracao_desafio"]
 
-        # Participantes (opcional)
-        torneio.participantes = set()
-        if "participantes" in dado:
-            for participante_dict in dado["participantes"]:
-                participante = from_dict(participante_dict)
-                torneio.participantes.add(participante)
+        torneio.participantes = set[()]
+        for p in dado.get("participantes", []):
+            participante = from_dict(p)
+            torneio.participantes.add(participante)
 
         return torneio
-    
-    def _adicionar_participante(self,nome:str)->None:
-        #BUsca o nome no arquivo
-        if buscar_aluno_por_nome(nome)==None:
-            return print("Este aluno não existe em pessoas.json")
-        #se existir ele retorna esse objeto
-        aluno=buscar_aluno_por_nome(nome)
-        #busca instancia o proprio torneio armazanado em torneios.json
-        torneioo=self.from_dict_torneio(buscar_torneio_por_nome(self.nome_torneio))
-        #adiciona o aluno buscado no set participantes
-        torneioo.participantes.add(aluno)
-        atualizar_torneio_por_nome(self.nome_torneio,torneioo)
 
-    def _remover_participante(self,nome:str)->None:
-        #BUsca o nome no arquivo
-        if buscar_aluno_por_nome(nome)==None:
-            return print("Este aluno não existe em pessoas.json")
-        #se existir ele retorna esse objeto
-        aluno=buscar_aluno_por_nome(nome)
-        #busca instancia o proprio torneio armazanado em torneios.json
-        torneioo=self.from_dict_torneio(buscar_torneio_por_nome(self.nome_torneio))
-        #adiciona o aluno buscado no set participantes
-        torneioo.participantes.discard(aluno)
-        atualizar_torneio_por_nome(self.nome_torneio,torneioo)    
+    def atualizar_no_arquivo(self, arquivo="torneios.json"):
+        """
+        Atualiza este torneio no arquivo JSON com base no nome do torneio.
+        """
+        try:
+            with open(arquivo, "r") as f:
+                torneios = json.load(f)
+        except FileNotFoundError:
+            print("Arquivo de torneios não encontrado.")
+            return
+        except json.JSONDecodeError:
+            print("Erro ao ler o JSON de torneios.")
+            return
+
+        # Converte este torneio para dicionário
+        torneio_dict = to_dict_torneio(self)
+
+        atualizado = False
+        for i, t in enumerate(torneios):
+            if t.get("nome_torneio") == self.nome_torneio:
+                torneios[i] = torneio_dict
+                atualizado = True
+                break
+
+        if not atualizado:
+            print(f"Torneio '{self.nome_torneio}' não encontrado no arquivo.")
+            return
+
+        with open(arquivo, "w") as f:
+            json.dump(torneios, f, indent=4)
+
+        print(f"Torneio '{self.nome_torneio}' atualizado com sucesso no arquivo.")
+
+
+    def _adicionar_participante(self, nome_aluno: str):
+        """
+        Adiciona um aluno ao set de participantes do torneio, buscando-o em pessoas.json.
+        """
+
+        aluno = buscar_aluno_por_nome(nome_aluno)
+        if aluno is None:
+            print(f"Aluno '{nome_aluno}' não encontrado em pessoas.json.")
+            return
+
+        if aluno in self.participantes:
+            print(f"O aluno '{nome_aluno}' já está participando deste torneio.")
+            return
+
+        self.participantes.add(aluno)
+        print(f"Aluno '{nome_aluno}' adicionado com sucesso ao torneio '{self.nome_torneio}'.")
+        self.atualizar_no_arquivo()
+
+
+
+    #def registrar_estudo(self)->None:
+
     
 
         
@@ -223,8 +254,46 @@ def atualizar_torneio_por_nome(nome_torneio: str, novo_torneio, arquivo="torneio
     with open(arquivo, "w") as f:
         json.dump(torneios, f, indent=4)
     print(f"Torneio '{nome_torneio}' atualizado com sucesso.")
+
+def salvar_torneio(torneio, arquivo="torneios.json"):
+    try:
+        with open(arquivo, "r") as f:
+            dados = json.load(f)
+    except FileNotFoundError:
+        dados = []
+    except json.JSONDecodeError:
+        dados = []
+
+    dados.append(to_dict_torneio(torneio))
+
+    with open(arquivo, "w") as f:
+        json.dump(dados, f, indent=4)
+
+    print(f"Torneio '{torneio.nome_torneio}' salvo com sucesso em '{arquivo}'.")
 #--------------FUNÇÕES QUE AUXILIAM O FUNCIONAMENTO DE TORNEIO----------------------
 
 lili=AE_Civil("Lili","UFMG")
+lili.inserir_materias()
 torneioo=torneio(AE_D_ADM(lili))
+
 print(to_dict_torneio(torneioo))
+limpar_tela(0)
+torneioo._adicionar_participante("c")
+print(to_dict_torneio(torneioo))
+print('')
+print('')
+asc=input()
+torneioo._adicionar_participante("Caa")
+print(to_dict_torneio(torneioo))
+asc=input()
+print('')
+print('')
+
+
+# print(buscar_aluno_por_nome("c").nome)
+# for i in buscar_aluno_por_nome("c").materias_cursando:
+#     print(i.nome)
+# print("\n")
+# print(buscar_aluno_por_nome("C").nome)
+# for i in buscar_aluno_por_nome("C").materias_cursando:
+#     print(i.nome)    
