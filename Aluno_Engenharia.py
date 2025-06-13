@@ -223,6 +223,16 @@ class AE_Desafio(AE_Aeroespacial,AE_Civil,AE_Eletrica,AE_Mecanica):
     def _Retornar_BrainCoins_Torneio(self)->float:
         pass 
 
+  
+
+
+class AE_D_Participante(AE_Desafio):
+    def __init__(self,Aluno_Eng):
+        super().__init__(Aluno_Eng)
+        self._BrainCoins_Torneio=0
+        self._campeao=False
+        self._braincoins_torneio=float(0)
+
     @property
     def Get_braincoins_torneio(self)->float:
         return self._braincoins_torneio 
@@ -233,15 +243,7 @@ class AE_Desafio(AE_Aeroespacial,AE_Civil,AE_Eletrica,AE_Mecanica):
     
     @Set_braincoins_torneio.setter
     def Set_braincoins_torneio(self,valor:float)->None:
-        self._braincoins_torneio=float(valor)  
-
-
-class AE_D_Participante(AE_Desafio):
-    def __init__(self,Aluno_Eng):
-        super().__init__(Aluno_Eng)
-        self._BrainCoins_Torneio=0
-        self._campeao=False
-        self._braincoins_torneio=float(0)
+        self._braincoins_torneio=float(valor)
 
     def _Retornar_BrainCoins_Torneio(self,posicao_torneio:int,numero_de_participantes:int,peso_materia:float)->float:
         if(self.campeao==True):
@@ -252,7 +254,7 @@ class AE_D_Participante(AE_Desafio):
 class AE_D_ADM(AE_Desafio):
     def __init__(self,Aluno_Eng):
         super().__init__(Aluno_Eng)
-        self._BrainCoins_Torneio=0
+        
 
     def _Retornar_BrainCoins_Torneio(self)->float:
         return 10    
