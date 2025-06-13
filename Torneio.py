@@ -52,6 +52,7 @@ def from_dict(dado: dict):
 
     return aluno
 
+
 def remover_aluno_por_nome(nome: str, arquivo="torneio.json"):
     try:
         with open(arquivo, "r") as f:
@@ -110,50 +111,50 @@ def buscar_torneio_por_nome(nome: str, arquivo="torneios.json"):
 
 
 class torneio():
-    def __init__(self,administrador: Type[AE_D_ADM] ):
-        self.administrador=administrador
-        self.participantes=set([])
-        self.nome_torneio=input("Qual o nome do torneio? ")
-        while(True):
-            print("Matérias que o administrador está cursando:")
-            for mmateria in self.administrador.materias_cursando:
-                print(mmateria.nome)
-            maateria=input("Insira qual será a matéria tema do torneio das opcoes acima ")
-            encontrou_materia=False
-            for mmateria in self.administrador.materias_cursando:                
-                if mmateria.nome==maateria:
-                    self.materia_torneio=maateria
-                    encontrou_materia=True
-                    break
-            if encontrou_materia==True:
-                break
-            else:
-                print("Nome inválido")
-                limpar_tela(1)
-                print("Tente novamente")
-                limpar_tela(1) 
+    # def __init__(self,administrador: Type[AE_D_ADM] ):
+    #     self.administrador=administrador
+    #     self.participantes=set([])
+    #     self.nome_torneio=input("Qual o nome do torneio? ")
+    #     while(True):
+    #         print("Matérias que o administrador está cursando:")
+    #         for mmateria in self.administrador.materias_cursando:
+    #             print(mmateria.nome)
+    #         maateria=input("Insira qual será a matéria tema do torneio das opcoes acima ")
+    #         encontrou_materia=False
+    #         for mmateria in self.administrador.materias_cursando:                
+    #             if mmateria.nome==maateria:
+    #                 self.materia_torneio=maateria
+    #                 encontrou_materia=True
+    #                 break
+    #         if encontrou_materia==True:
+    #             break
+    #         else:
+    #             print("Nome inválido")
+    #             limpar_tela(1)
+    #             print("Tente novamente")
+    #             limpar_tela(1) 
                    
-        self.Dias_passados=0
-        self.Duracao_desafio=input("Qual sera a duracao do torneio em dias? ")
-        salvar_torneio(self)
+        # self.Dias_passados=0
+        # self.Duracao_desafio=input("Qual sera a duracao do torneio em dias? ")
+        # salvar_torneio(self)
         
 
-    @classmethod
-    def from_dict_torneio(cls, dado: dict):
-        administrador = from_dict(dado["administrador"])
-        torneio = cls.__new__(cls)
-        torneio.administrador = administrador
-        torneio.nome_torneio = dado["nome_torneio"]
-        torneio.materia_torneio = dado["materia_torneio"]  # Corrigido nome
-        torneio.Dias_passados = dado.get("Dias_passados", 0)
-        torneio.Duracao_desafio = dado["Duracao_desafio"]
+    # @classmethod
+    # def from_dict_torneio(cls, dado: dict):
+    #     administrador = from_dict(dado["administrador"])
+    #     torneio = cls.__new__(cls)
+    #     torneio.administrador = administrador
+    #     torneio.nome_torneio = dado["nome_torneio"]
+    #     torneio.materia_torneio = dado["materia_torneio"]  # Corrigido nome
+    #     torneio.Dias_passados = dado.get("Dias_passados", 0)
+    #     torneio.Duracao_desafio = dado["Duracao_desafio"]
 
-        torneio.participantes = set[()]
-        for p in dado.get("participantes", []):
-            participante = from_dict(p)
-            torneio.participantes.add(participante)
+    #     torneio.participantes = set[()]
+    #     for p in dado.get("participantes", []):
+    #         participante = from_dict(p)
+    #         torneio.participantes.add(participante)
 
-        return torneio
+    #     return torneio
 
     def atualizar_no_arquivo(self, arquivo="torneios.json"):
         """
@@ -209,7 +210,7 @@ class torneio():
 
 
 
-    #def registrar_estudo(self)->None:
+    # def registrar_estudo(self)->None:
 
     
 
@@ -270,24 +271,57 @@ def salvar_torneio(torneio, arquivo="torneios.json"):
         json.dump(dados, f, indent=4)
 
     print(f"Torneio '{torneio.nome_torneio}' salvo com sucesso em '{arquivo}'.")
+
+
+
+def from_dict_torneio(dado: dict):
+    # Primeiro, criamos o administrador a partir do dicionário
+    administrador = from_dict(dado["administrador"])  # Supondo que você tenha essa função de conversão para o administrador
+    
+    # Cria uma nova instância de Torneio
+    torneio = Torneio.__new__(Torneio)
+    
+    # Preenche os atributos do torneio com os dados do dicionário
+    torneio.administrador = administrador
+    torneio.nome_torneio = dado["nome_torneio"]
+    torneio.materia_torneio = dado["materia_torneio"]
+    torneio.Dias_passados = dado.get("Dias_passados", 0)
+    torneio.Duracao_desafio = dado["Duracao_desafio"]
+
+    # Converte os participantes para um set de objetos
+    torneio.participantes = set()
+    for p in dado.get("participantes", []):
+        participante = from_dict(p)  # Supondo que você tenha uma função `from_dict` para participantes
+        torneio.participantes.add(participante)
+
+    return torneio
+
+def retornar_participantes_torneio(nome_torneio)->set:
+
+    torneioo= buscar_torneio_por_nome(nome_torneio)
+    participantes=set([])
+    for i in torneioo["participantes"]:
+        participantes.add(AE_D_Participante(from_dict(i)))
+    return participantes
+
 #--------------FUNÇÕES QUE AUXILIAM O FUNCIONAMENTO DE TORNEIO----------------------
 
-lili=AE_Civil("Lili","UFMG")
-lili.inserir_materias()
-torneioo=torneio(AE_D_ADM(lili))
+# lili=AE_Civil("Lili","UFMG")
+# lili.inserir_materias()
+# torneioo=torneio(AE_D_ADM(lili))
 
-print(to_dict_torneio(torneioo))
-limpar_tela(0)
-torneioo._adicionar_participante("c")
-print(to_dict_torneio(torneioo))
-print('')
-print('')
-asc=input()
-torneioo._adicionar_participante("Caa")
-print(to_dict_torneio(torneioo))
-asc=input()
-print('')
-print('')
+# print(to_dict_torneio(torneioo))
+# limpar_tela(0)
+# torneioo._adicionar_participante("caua")
+# print(to_dict_torneio(torneioo))
+# print('')
+# print('')
+# asc=input()
+# torneioo._adicionar_participante("Lili")
+# print(to_dict_torneio(torneioo))
+# asc=input()
+# print('')
+# print('')
 
 
 # print(buscar_aluno_por_nome("c").nome)
@@ -297,3 +331,29 @@ print('')
 # print(buscar_aluno_por_nome("C").nome)
 # for i in buscar_aluno_por_nome("C").materias_cursando:
 #     print(i.nome)    
+
+
+
+# def retornar_um_participante_torneio(nome_torneio,nome)->AE_D_Participante:
+#     participantes=retornar_participantes_torneio(nome_torneio)
+#     retorno is AE_D_Participante
+#     for i in participantes:
+#         if i.nome==nome:
+#             retorno=i
+#             break
+#         return retorno
+
+participantes=retornar_participantes_torneio("tht")
+print(participantes)
+
+# for i in participantes:
+#     if i.nome==nome:
+#         retorno=i
+#         break
+# print(i)
+# print(i.nome) 
+# print(i._braincoins) 
+# print(i.Get_braincoins_torneio)
+
+
+# print(torneioo.administrador)
