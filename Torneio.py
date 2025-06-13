@@ -156,6 +156,12 @@ class torneio():
 
     #     return torneio
 
+    # def exibir_dados(self)->None:
+    #     participantes=retornar_participantes_torneio(self.nome)
+    #     for i in participantes:
+
+    #         print(f"{i.}")
+
     def atualizar_no_arquivo(self, arquivo="torneios.json"):
         """
         Atualiza este torneio no arquivo JSON com base no nome do torneio.
@@ -344,7 +350,20 @@ def retornar_participantes_torneio(nome_torneio)->set:
 #         return retorno
 
 participantes=retornar_participantes_torneio("tht")
-print(participantes)
+for i in participantes:
+     if i.nome=="caua":
+         i._BrainCoins_Torneio=0
+     if i.nome=="Lili":
+         i._BrainCoins_Torneio=1
+
+for i in participantes:
+    print(f"{i.nome} tem {i._BrainCoins_Torneio}")
+
+
+participantes_ordenados = sorted(participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
+
+for i in participantes:
+    print(f"Final\t{i.nome} tem {i.Get_braincoins_torneio}")
 
 # for i in participantes:
 #     if i.nome==nome:
