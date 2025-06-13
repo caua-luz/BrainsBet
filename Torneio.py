@@ -17,8 +17,7 @@ def to_dict(classe) -> dict:
     }
 
 def from_dict(dado: dict):
- 
-    # Mapeamento de nomes para classes
+    # Mapeamento de classes
     CLASSES = {
         "AE_D_ADM": AE_D_ADM,
         "AE_D_Participante": AE_D_Participante,
@@ -28,28 +27,43 @@ def from_dict(dado: dict):
         "AE_Mecanica": AE_Mecanica
     }
 
-    # Mapeamento de curso para lista de matérias
-    MATERIAS = {
-        "Engenharia Eletrica": Materias_Eletrica,
-        "Engenharia Civl": Materias_Aeroespacial_Civil_Mecanica,
-        "Engenharia Aeroespacial": Materias_Aeroespacial_Civil_Mecanica,
-        "Engenharia Mecanica": Materias_Aeroespacial_Civil_Mecanica
-    }
+    # Criar a instância de aluno com os dados do dicionário
+    nome = dado.get("nome", "")
+    instituicao = dado.get("instituicao", "")
+    curso = dado.get("curso", "")
+    materias_cursando = dado.get("materias_cursando", [])
 
-    # Criar a instância da classe correta
-    cls = CLASSES[dado["classe"]]
-    aluno = cls(dado["nome"], dado["instituicao"])
+    # Supondo que as subclasses de Aluno_Eng sejam instanciadas aqui
+    # Aqui você cria a instância correta de acordo com o curso do aluno
+    if curso == "Engenharia Eletrica":
+        aluno = AE_Eletrica(nome, instituicao)
+    elif curso == "Engenharia Civil":
+        aluno = AE_Civil(nome, instituicao)
+    elif curso == "Engenharia Aeroespacial":
+        aluno = AE_Aeroespacial(nome, instituicao)
+    elif curso == "Engenharia Mecanica":
+        aluno = AE_Mecanica(nome, instituicao)
+    else:
+        raise ValueError(f"Curso desconhecido: {curso}")
 
-    # Atribuir manualmente os atributos que não são passados no construtor
-    aluno._braincoins = dado["braincoins"]
+    # Atribuir dados extras que não são passados no construtor
+    aluno._braincoins = dado.get("braincoins", 0)
     aluno._BrainCoins_Torneio = dado.get("BrainCoins_Torneio", 0)
+    aluno.materias_cursando = set(materias_cursando)
 
-    # Reconstruir as matérias cursando
-    materias_disponiveis = MATERIAS[dado["curso"]]
-    aluno.materias_cursando = set(
-        [m for m in materias_disponiveis if m.nome in dado["materias_cursando"]]
-    )
-
+    # Verifica a classe do administrador ou participante e instancia corretamente
+    classe = dado.get("classe", None)
+    cls = CLASSES.get(classe, None)
+    
+    if not cls:
+        raise ValueError(f"Classe não encontrada: {classe}")
+    
+    # Agora passamos a instância de aluno para a classe de administrador ou participante
+    if classe == "AE_D_Participante":
+        return AE_D_Participante(aluno)
+    elif classe == "AE_D_ADM":
+        return AE_D_ADM(aluno)
+    
     return aluno
 
 
@@ -137,7 +151,53 @@ class torneio():
         # self.Dias_passados=0
         # self.Duracao_desafio=input("Qual sera a duracao do torneio em dias? ")
         # salvar_torneio(self)
-        
+
+    def Registrar_Estudo(self)->None:
+        limpar_tela(0)
+        participantes=retornar_participantes_torneio(self.nome_torneio)
+        while(True):
+            print("Os participantes são estes: ")
+            for i in participantes:
+                print(i.nome)
+            nome=input("Qual o participante esta estudando?\t")
+            nome_set=False
+            for i in participantes:
+                if nome==i.nome:
+                    nome_set=True
+            if nome_set==False:
+                print("Nome não encontrado")
+                print("Coloque outro")
+                limpar_tela(3)
+                
+            else:
+                peso_materia_torneio=0
+                tempo=float(input("Por quantas horas?\t"))
+                for i in self.administrador.materias:
+                    print(i.nome)
+                    print(i._peso)
+                    if i.nome==self.materia_torneio:
+                        peso_materia_torneio=i._peso
+                        print("Achei!")
+                        print(i.nome)
+                        print(i._peso)
+                        break
+
+                
+                for i in participantes:
+                    if i.nome==nome:
+                        i.Set_braincoins_torneio+=tempo*peso_materia_torneio/10
+                        break           
+                break
+
+    def Mostrar_Dados_Torneio(self)->None:
+        participantes=retornar_participantes_torneio(self.nome_torneio)
+        participantes = sorted(participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
+        print(f"O torneio {self.nome_torneio} tem os seguintes dados: ")
+        print(f"Administrador {self.administrador.nome}")
+        print(f"E da materia {self.materia_torneio}")
+        print("Tem os participantes: ")
+        for i in participantes:
+            print(f"\t{i.nome} tem {i.Get_braincoins_torneio}")
 
     # @classmethod
     # def from_dict_torneio(cls, dado: dict):
@@ -278,29 +338,27 @@ def salvar_torneio(torneio, arquivo="torneios.json"):
 
     print(f"Torneio '{torneio.nome_torneio}' salvo com sucesso em '{arquivo}'.")
 
-
-
 def from_dict_torneio(dado: dict):
     # Primeiro, criamos o administrador a partir do dicionário
     administrador = from_dict(dado["administrador"])  # Supondo que você tenha essa função de conversão para o administrador
     
     # Cria uma nova instância de Torneio
-    torneio = Torneio.__new__(Torneio)
+    torneioo = torneio.__new__(torneio)
     
     # Preenche os atributos do torneio com os dados do dicionário
-    torneio.administrador = administrador
-    torneio.nome_torneio = dado["nome_torneio"]
-    torneio.materia_torneio = dado["materia_torneio"]
-    torneio.Dias_passados = dado.get("Dias_passados", 0)
-    torneio.Duracao_desafio = dado["Duracao_desafio"]
+    torneioo.administrador = administrador
+    torneioo.nome_torneio = dado["nome_torneio"]
+    torneioo.materia_torneio = dado["materia_torneio"]
+    torneioo.Dias_passados = dado.get("Dias_passados", 0)
+    torneioo.Duracao_desafio = dado["Duracao_desafio"]
 
     # Converte os participantes para um set de objetos
-    torneio.participantes = set()
+    torneioo.participantes = set()
     for p in dado.get("participantes", []):
         participante = from_dict(p)  # Supondo que você tenha uma função `from_dict` para participantes
-        torneio.participantes.add(participante)
+        torneioo.participantes.add(participante)
 
-    return torneio
+    return torneioo
 
 def retornar_participantes_torneio(nome_torneio)->set:
 
@@ -311,6 +369,20 @@ def retornar_participantes_torneio(nome_torneio)->set:
     return participantes
 
 #--------------FUNÇÕES QUE AUXILIAM O FUNCIONAMENTO DE TORNEIO----------------------
+
+torneioo= from_dict_torneio(buscar_torneio_por_nome("tht"))
+torneioo.Mostrar_Dados_Torneio()
+torneioo.Registrar_Estudo()
+
+
+
+
+
+
+
+
+
+
 
 # lili=AE_Civil("Lili","UFMG")
 # lili.inserir_materias()
@@ -340,30 +412,22 @@ def retornar_participantes_torneio(nome_torneio)->set:
 
 
 
-# def retornar_um_participante_torneio(nome_torneio,nome)->AE_D_Participante:
-#     participantes=retornar_participantes_torneio(nome_torneio)
-#     retorno is AE_D_Participante
-#     for i in participantes:
-#         if i.nome==nome:
-#             retorno=i
-#             break
-#         return retorno
 
-participantes=retornar_participantes_torneio("tht")
-for i in participantes:
-     if i.nome=="caua":
-         i._BrainCoins_Torneio=0
-     if i.nome=="Lili":
-         i._BrainCoins_Torneio=1
+    
+            
 
-for i in participantes:
-    print(f"{i.nome} tem {i._BrainCoins_Torneio}")
+# participantes=retornar_participantes_torneio("tht")
+# participantes = sorted(participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
+# win
+# for i in participantes:
+#     print(f"O vencedor é \t{i.nome} com {i.Get_braincoins_torneio} BrainCoins do Torneio")
+#     win=i
+#     win._campeao=True
+# win._Retornar_BrainCoins_Torneio(1,len(self.participantes),self.materia_torneio.peso) 
+# for i in participantes:
+#     if not i._campeao:
+#         i._Retornar_BrainCoins_Torneio(1,len(self.participantes),self.materia_torneio.peso) 
 
-
-participantes_ordenados = sorted(participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
-
-for i in participantes:
-    print(f"Final\t{i.nome} tem {i.Get_braincoins_torneio}")
 
 # for i in participantes:
 #     if i.nome==nome:
