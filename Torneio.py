@@ -13,7 +13,17 @@ def to_dict(classe) -> dict:
         "curso": classe.curso,
         "braincoins": classe._braincoins,
         "BrainCoins_Torneio": classe._BrainCoins_Torneio,
-        "materias_cursando": [m.nome for m in classe.materias_cursando]  # apenas nomes
+        "materias_cursando": [m for m in classe.materias_cursando]  # apenas nomes
+    }
+
+def to_dict_adm(classe) -> dict:
+    return {
+        "classe": classe.__class__.__name__,
+        "nome": classe.nome,
+        "instituicao": classe.instituicao,
+        "curso": classe.curso,
+        "braincoins": classe._braincoins,
+        "materias_cursando": [m for m in classe.materias_cursando]  # apenas nomes
     }
 
 def from_dict(dado: dict):
@@ -173,20 +183,19 @@ class torneio():
                 peso_materia_torneio=0
                 tempo=float(input("Por quantas horas?\t"))
                 for i in self.administrador.materias:
-                    print(i.nome)
-                    print(i._peso)
+
                     if i.nome==self.materia_torneio:
                         peso_materia_torneio=i._peso
-                        print("Achei!")
-                        print(i.nome)
-                        print(i._peso)
+
                         break
 
                 
                 for i in participantes:
                     if i.nome==nome:
                         i.Set_braincoins_torneio+=tempo*peso_materia_torneio/10
-                        break           
+                        break
+                self.participantes=participantes
+                self.atualizar_no_arquivo()           
                 break
 
     def Mostrar_Dados_Torneio(self)->None:
@@ -286,7 +295,7 @@ class torneio():
 #--------------FUNÇÕES QUE AUXILIAM O FUNCIONAMENTO DE TORNEIO----------------------
 def to_dict_torneio(torneio):  # conversão do objeto Torneio para dicionário
     return {
-        "administrador": to_dict(torneio.administrador),
+        "administrador": to_dict_adm(torneio.administrador),
         "nome_torneio": torneio.nome_torneio,
         "materia_torneio": torneio.materia_torneio,
         "Dias_passados": torneio.Dias_passados,
