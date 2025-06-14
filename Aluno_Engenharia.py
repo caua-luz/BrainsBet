@@ -220,7 +220,7 @@ class AE_Desafio(AE_Aeroespacial,AE_Civil,AE_Eletrica,AE_Mecanica):
         
 
     @abstractmethod
-    def _Retornar_BrainCoins_Torneio(self)->float:
+    def Retornar_BrainCoins_Torneio(self)->float:
         pass 
 
   
@@ -229,8 +229,8 @@ class AE_Desafio(AE_Aeroespacial,AE_Civil,AE_Eletrica,AE_Mecanica):
 class AE_D_Participante(AE_Desafio):
     def __init__(self,Aluno_Eng):
         super().__init__(Aluno_Eng)
-        self._BrainCoins_Torneio=0
-        self._campeao=False
+        
+        self.campeao=False
         self._braincoins_torneio=float(0)
 
     @property
@@ -245,10 +245,12 @@ class AE_D_Participante(AE_Desafio):
     def Set_braincoins_torneio(self,valor:float)->None:
         self._braincoins_torneio=float(valor)
 
-    def _Retornar_BrainCoins_Torneio(self,posicao_torneio:int,numero_de_participantes:int,peso_materia:float)->float:
+    def Retornar_BrainCoins_Torneio(self,posicao_torneio:int,numero_de_participantes:int,peso_materia:float)->float:
         if(self.campeao==True):
+            self.Set_braincoins_torneio=10*numero_de_participantes*peso_materia
             return 10*numero_de_participantes*peso_materia
         else:
+            self.Set_braincoins_torneio= (numero_de_participantes*peso_materia-posicao_torneio)/10
             return (numero_de_participantes*peso_materia-posicao_torneio)/10
 
 class AE_D_ADM(AE_Desafio):
@@ -256,7 +258,7 @@ class AE_D_ADM(AE_Desafio):
         super().__init__(Aluno_Eng)
         
 
-    def _Retornar_BrainCoins_Torneio(self)->float:
+    def Retornar_BrainCoins_Torneio(self)->float:
         return 10    
 
 # registrar()
