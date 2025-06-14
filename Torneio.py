@@ -12,6 +12,7 @@ def to_dict(classe) -> dict:
         "instituicao": classe.instituicao,
         "curso": classe.curso,
         "braincoins": classe._braincoins,
+        "Campeao": classe.campeao,
         "BrainCoins_Torneio": float(classe.Get_braincoins_torneio),
         "materias_cursando": [m for m in classe.materias_cursando]  # apenas nomes
     }
@@ -60,6 +61,7 @@ def from_dict(dado: dict):
     aluno._braincoins = dado.get("braincoins", 0)
     aluno._BrainCoins_Torneio = dado.get("BrainCoins_Torneio", 0)
     aluno.materias_cursando = set(materias_cursando)
+    aluno.campeao = dado.get("campeao")
 
     # Verifica a classe do administrador ou participante e instancia corretamente
     classe = dado.get("classe", None)
@@ -160,7 +162,7 @@ class torneio():
         self.Dias_passados=0
         self.Duracao_desafio=input("Qual sera a duracao do torneio em dias? ")
         salvar_torneio(self)
-        self.atualizar_no_arquivo(self)
+        self.atualizar_no_arquivo()
 
 
     def atualizar_no_arquivo(self, arquivo="torneios.json"):
@@ -168,7 +170,7 @@ class torneio():
         Atualiza este torneio no arquivo JSON com base no nome do torneio.
         """
         try:
-            with open(arquivo, "r") as f:
+            with open("torneios.json", "r") as f:
                 torneios = json.load(f)
         except FileNotFoundError:
             print("Arquivo de torneios não encontrado.")
@@ -178,7 +180,7 @@ class torneio():
             return
         
         torneio_dict = to_dict_torneio(self)  # Aqui chamamos a função que converte o torneio em um dicionário
-        print(torneio_dict)
+        
         atualizado = False
         for i, t in enumerate(torneios):
             if t.get("nome_torneio") == self.nome_torneio:
@@ -289,7 +291,27 @@ class torneio():
 
 
 
-    # def registrar_estudo(self)->None:
+    def Encerrar_Torneio(self)->None:
+        participantes=retornar_participantes_torneio(self.nome_torneio)
+        participantes = sorted(participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
+
+        for i in participantes:
+            print(f"\t{i.nome} tem {i.Get_braincoins_torneio}")
+        print("O vencedor é: ")
+        for i in participantes:
+            i.campeao=True
+            print(f"\t{i.nome} com {i.Get_braincoins_torneio}")
+            break
+        peso_materia_torneio = 0
+        for i in self.administrador.materias:
+            if self.materia_torneio == self.materia_torneio:
+                peso_materia_torneio = i._peso
+                break
+        for ii, i in enumerate(participantes,start=1):
+            if i.campeao==False:
+                # aux=buscar_aluno_por_nome(i.nome)
+                i.Retornar_BrainCoins_Torneio(ii,len(self.participantes),peso_materia_torneio)
+
 
     
 
@@ -408,7 +430,7 @@ def retornar_participantes_torneio(nome_torneio)->set:
 # lili.inserir_materias()
 # torneioo=torneio(AE_D_ADM(lili))
 
-# print(to_dict_torneio(torneioo))
+torneioo= from_dict_torneio(buscar_torneio_por_nome("t"))
 # limpar_tela(0)
 # torneioo._adicionar_participante("caua")
 # print(to_dict_torneio(torneioo))
@@ -421,6 +443,7 @@ def retornar_participantes_torneio(nome_torneio)->set:
 # print('')
 # print('')
 
+torneioo.Encerrar_Torneio()
 
 # print(buscar_aluno_por_nome("c").nome)
 # for i in buscar_aluno_por_nome("c").materias_cursando:
