@@ -1,4 +1,4 @@
-from Aluno_Engenharia import AE_D_Participante,AE_Aeroespacial,AE_Civil,AE_D_ADM,AE_Eletrica,AE_Mecanica,limpar_tela
+from Aluno_Engenharia import AE_D_Participante,AE_Aeroespacial,AE_Civil,AE_D_ADM,AE_Eletrica,AE_Mecanica,limpar_tela,salvar_aluno
 from typing import Type
 from Materia import Materias_Eletrica,Materias_Aeroespacial_Civil_Mecanica
 
@@ -229,15 +229,15 @@ class torneio():
                         # Atualizando o valor com o setter
                         i.Set_braincoins_torneio += incremento  # Usa o setter corretamente
                         
-                        print("par")
+                        
                         print(i.Set_braincoins_torneio)
                         break
                     else:
                         continue
         
                 self.participantes = participantes  # Atualiza o set de participantes
-                for i in self.participantes:
-                    print(i.Set_braincoins_torneio)
+                # for i in self.participantes:
+                #     print(i.Set_braincoins_torneio)
         
                 # Atualiza o arquivo após a alteração
                 self.atualizar_no_arquivo()  # Agora isso vai garantir que o arquivo seja atualizado corretamente
@@ -292,25 +292,41 @@ class torneio():
 
 
     def Encerrar_Torneio(self)->None:
-        participantes=retornar_participantes_torneio(self.nome_torneio)
-        participantes = sorted(participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
-
-        for i in participantes:
-            print(f"\t{i.nome} tem {i.Get_braincoins_torneio}")
-        print("O vencedor é: ")
-        for i in participantes:
-            i.campeao=True
-            print(f"\t{i.nome} com {i.Get_braincoins_torneio}")
-            break
+        
+        self.participantes = sorted(self.participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
+        
+        self.administrador.Retornar_BrainCoins_Torneio()
+        
+        self.atualizar_no_arquivo()
         peso_materia_torneio = 0
         for i in self.administrador.materias:
             if self.materia_torneio == self.materia_torneio:
                 peso_materia_torneio = i._peso
                 break
-        for ii, i in enumerate(participantes,start=1):
+        for i in self.participantes:
+            print(f"\t{i.nome} tem {i.Get_braincoins_torneio}")
+        print("O vencedor é: ")
+        for ii, i in enumerate(self.participantes,start=1):
+            i.campeao=True
+            print(f"\t{i.nome} com {i.Get_braincoins_torneio}")
+            aux=buscar_aluno_por_nome(i.nome)
+            print(i.nome)
+            print(i.Get_braincoins_torneio)
+            i.Retornar_BrainCoins_Torneio(ii,len(self.participantes),peso_materia_torneio)
+            aux.modificar_braincoin=i.Get_braincoins_torneio
+            salvar_aluno(aux)
+            remover_aluno_por_nome(aux.nome)            
+            break
+
+        for ii, i in enumerate(self.participantes,start=1):
             if i.campeao==False:
-                # aux=buscar_aluno_por_nome(i.nome)
+                aux=buscar_aluno_por_nome(i.nome)
+                print(f"{ii} {i.nome} {i.Get_braincoins_torneio}")
                 i.Retornar_BrainCoins_Torneio(ii,len(self.participantes),peso_materia_torneio)
+                aux.modificar_braincoin=i.Get_braincoins_torneio
+                remover_aluno_por_nome(aux.nome)
+                salvar_aluno(aux)
+                print(i.Get_braincoins_torneio)
 
 
     
@@ -442,7 +458,7 @@ torneioo= from_dict_torneio(buscar_torneio_por_nome("t"))
 # asc=input()
 # print('')
 # print('')
-
+torneioo.Registrar_Estudo()
 torneioo.Encerrar_Torneio()
 
 # print(buscar_aluno_por_nome("c").nome)
