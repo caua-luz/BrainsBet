@@ -13,8 +13,8 @@ def to_dict(classe) -> dict:
         "nome": classe.nome,
         "instituicao": classe.instituicao,
         "curso": classe.curso,
-        "braincoins": classe._braincoins,
-        "materias_cursando": [m.nome for m in classe.materias_cursando]  # apenas nomes
+        "braincoins": float(classe._braincoins),
+        "materias_cursando": [m for m in classe.materias_cursando]  # apenas nomes
     }
 
 def remover_aluno_por_nome(nome: str, arquivo="pessoas.json"):
@@ -112,19 +112,13 @@ class Aluno_Engenharia(ABC):
         return self._braincoins
     
     @property
-    def modificar_braincoin(self)->float:
+    def modificar_braincoin(self):
         return self._braincoins
 
     @modificar_braincoin.setter
-    def modificar_braincoin(self,valor:float,soma:bool,subtracao:bool,multiplicacao:bool,divisao:bool)->None:
-        if soma:
-            self._braincoins += valor
-        elif subtracao:
-            self._braincoins -= valor
-        elif multiplicacao:
-            self._braincoins *= valor
-        elif divisao:                
-            self._braincoins /= valor                
+    def modificar_braincoin(self,valor)->None:
+        self._braincoins=valor#+self.ler_braincoin
+                        
 
     def inserir_materias(self)-> None:
         while(True):
@@ -259,6 +253,7 @@ class AE_D_ADM(AE_Desafio):
         
 
     def Retornar_BrainCoins_Torneio(self)->float:
+        self._braincoins+=10
         return 10    
 
 # registrar()
