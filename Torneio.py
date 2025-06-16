@@ -14,7 +14,29 @@ def to_dict(classe) -> dict:
         "braincoins": classe._braincoins,
         "Campeao": classe.campeao,
         "BrainCoins_Torneio": float(classe.Get_braincoins_torneio),
+        "materias_cursando": [m.nome for m in classe.materias_cursando]  # apenas nomes
+    }
+
+def to_dict(classe) -> dict:
+    return {
+        "classe": classe.__class__.__name__,
+        "nome": classe.nome,
+        "instituicao": classe.instituicao,
+        "curso": classe.curso,
+        "braincoins": classe._braincoins,
+        "Campeao": classe.campeao,
+        "BrainCoins_Torneio": float(classe.Get_braincoins_torneio),
         "materias_cursando": [m for m in classe.materias_cursando]  # apenas nomes
+    }
+
+def to_dict_adm(classe) -> dict:
+    return {
+        "classe": classe.__class__.__name__,
+        "nome": classe.nome,
+        "instituicao": classe.instituicao,
+        "curso": classe.curso,
+        "braincoins": classe._braincoins,
+        "materias_cursando": [m.nome for m in classe.materias_cursando]  # apenas nomes
     }
 
 def to_dict_adm(classe) -> dict:
@@ -78,18 +100,18 @@ def from_dict(dado: dict):
     
     return aluno
 
-def remover_aluno_por_nome(nome: str, arquivo="torneio.json"):
-    try:
-        with open(arquivo, "r") as f:
-            dados = json.load(f)
-    except FileNotFoundError:
-        print("Arquivo não encontrado.")
-        return
+def remover_aluno_no_torneio_por_nome(nome: str,torneio, arquivo="torneio.json"):
+    participantes=retornar_participantes_torneio(torneio.nome_torneio)
+    for i in participantes:    
+        participante=i
+    for i in participantes:
+        if i.nome == nome:
+            participante=i
+            break
+    participantes.discard(participante)
+    torneio.participantes=participantes
+    torneio.atualizar_no_arquivo()
 
-    novos_dados = [aluno for aluno in dados if aluno["nome"] != nome]
-
-    with open(arquivo, "w") as f:
-        json.dump(novos_dados, f, indent=4)
 
 def buscar_aluno_por_nome(nome: str, arquivo="pessoas.json"):
     try:
@@ -137,6 +159,7 @@ def buscar_torneio_por_nome(nome: str, arquivo="torneios.json"):
 
 class torneio():
     def __init__(self,administrador: Type[AE_D_ADM] ):
+        limpar_tela(0)
         self.administrador=administrador
         self.participantes=set([])
         self.nome_torneio=input("Qual o nome do torneio? ")
@@ -169,6 +192,7 @@ class torneio():
         """
         Atualiza este torneio no arquivo JSON com base no nome do torneio.
         """
+        
         try:
             with open("torneios.json", "r") as f:
                 torneios = json.load(f)
@@ -224,13 +248,13 @@ class torneio():
                 for i in participantes:
                     if i.nome == nome:
                         incremento = tempo * peso_materia_torneio / 10
-                        print(incremento)
+                        
                         
                         # Atualizando o valor com o setter
                         i.Set_braincoins_torneio += incremento  # Usa o setter corretamente
                         
                         
-                        print(i.Set_braincoins_torneio)
+                        print(f"O estudo rendeu {i.Set_braincoins_torneio} BrainCoins")
                         break
                     else:
                         continue
@@ -241,9 +265,11 @@ class torneio():
         
                 # Atualiza o arquivo após a alteração
                 self.atualizar_no_arquivo()  # Agora isso vai garantir que o arquivo seja atualizado corretamente
+                input("\n\nInsira qualquer coisa para continuar")
                 break
 
     def Mostrar_Dados_Torneio(self)->None:
+        limpar_tela(0)
         participantes=retornar_participantes_torneio(self.nome_torneio)
         participantes = sorted(participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
         print(f"O torneio {self.nome_torneio} tem os seguintes dados: ")
@@ -252,6 +278,7 @@ class torneio():
         print("Tem os participantes: ")
         for i in participantes:
             print(f"\t{i.nome} tem {i.Get_braincoins_torneio}")
+        input("\n\nInsira qualquer coisa para continuar")
 
     @classmethod
     def from_dict_torneio(cls, dado: dict):
@@ -275,7 +302,7 @@ class torneio():
         """
         Adiciona um aluno ao set de participantes do torneio, buscando-o em pessoas.json.
         """
-
+        limpar_tela(0)
         aluno = AE_D_Participante(buscar_aluno_por_nome(nome_aluno))
         if aluno is None:
             print(f"Aluno '{nome_aluno}' não encontrado em pessoas.json.")
@@ -288,45 +315,46 @@ class torneio():
         self.participantes.add(aluno)
         print(f"Aluno '{nome_aluno}' adicionado com sucesso ao torneio '{self.nome_torneio}'.")
         self.atualizar_no_arquivo()
+        input("\n\nInsira qualquer coisa para continuar")
 
 
 
     def Encerrar_Torneio(self)->None:
-        
+        limpar_tela(0)
         self.participantes = sorted(self.participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
         
-        self.administrador.Retornar_BrainCoins_Torneio()
-        
-        self.atualizar_no_arquivo()
+        for ii, i in enumerate(self.participantes,start=1):
+            print(f"{ii}º Lugar - {i.nome} tem {i.Get_braincoins_torneio}")
+
+        # self.atualizar_no_arquivo()
         peso_materia_torneio = 0
         for i in self.administrador.materias:
             if self.materia_torneio == self.materia_torneio:
                 peso_materia_torneio = i._peso
                 break
-        for i in self.participantes:
-            print(f"\t{i.nome} tem {i.Get_braincoins_torneio}")
-        print("O vencedor é: ")
+        
+        print("\nO vencedor é: ")
         for ii, i in enumerate(self.participantes,start=1):
             i.campeao=True
-            print(f"\t{i.nome} com {i.Get_braincoins_torneio}")
+            print(f"{i.nome} com {i.Get_braincoins_torneio}")
             aux=buscar_aluno_por_nome(i.nome)
-            print(i.nome)
-            print(i.Get_braincoins_torneio)
             i.Retornar_BrainCoins_Torneio(ii,len(self.participantes),peso_materia_torneio)
             aux.modificar_braincoin=i.Get_braincoins_torneio
-            salvar_aluno(aux)
-            remover_aluno_por_nome(aux.nome)            
+            atualizar_somando_braincoins(aux)
+            remover_aluno_no_torneio_por_nome(aux.nome,self)            
             break
-
-        for ii, i in enumerate(self.participantes,start=1):
+        print("\nOs demais participantes são: ")
+        for ii, i in enumerate(self.participantes,start=2):
             if i.campeao==False:
                 aux=buscar_aluno_por_nome(i.nome)
-                print(f"{ii} {i.nome} {i.Get_braincoins_torneio}")
+                print(f"Em {ii}º Lugar {i.nome} com {i.Get_braincoins_torneio}")
                 i.Retornar_BrainCoins_Torneio(ii,len(self.participantes),peso_materia_torneio)
                 aux.modificar_braincoin=i.Get_braincoins_torneio
-                remover_aluno_por_nome(aux.nome)
-                salvar_aluno(aux)
-                print(i.Get_braincoins_torneio)
+                atualizar_somando_braincoins(aux)
+                remover_aluno_no_torneio_por_nome(aux.nome,self)
+                
+        excluir_torneio(to_dict_torneio(self))
+        input("\n\nInsira qualquer coisa para continuar")
 
 
     
@@ -335,7 +363,70 @@ class torneio():
 
 
 #--------------FUNÇÕES QUE AUXILIAM O FUNCIONAMENTO DE TORNEIO----------------------
-def to_dict_torneio(torneio):  # conversão do objeto Torneio para dicionário
+
+def excluir_torneio(torneio_dict, arquivo="torneios.json"):
+    """
+    Remove um torneio do arquivo torneios.json com base no nome do torneio.
+    """
+    try:
+        with open(arquivo, "r") as f:
+            torneios = json.load(f)
+    except FileNotFoundError:
+        print("Arquivo de torneios não encontrado.")
+        return
+    except json.JSONDecodeError:
+        print("Erro ao ler o JSON de torneios.")
+        return
+
+    nome = torneio_dict.get("nome_torneio")
+    if nome is None:
+        print("Nome do torneio não encontrado no dicionário.")
+        return
+
+    torneios_filtrados = [t for t in torneios if t.get("nome_torneio") != nome]
+
+    if len(torneios) == len(torneios_filtrados):
+        print(f"Nenhum torneio com nome '{nome}' foi encontrado para remoção.")
+        return
+
+    with open(arquivo, "w") as f:
+        json.dump(torneios_filtrados, f, indent=4)
+
+    print(f"Torneio '{nome}' removido com sucesso do arquivo.")
+
+
+def atualizar_somando_braincoins(aluno_novo, arquivo="pessoas.json"):
+    try:
+        with open(arquivo, "r") as f:
+            dados = json.load(f)
+    except FileNotFoundError:
+        dados = []
+
+    nome_novo = aluno_novo.nome
+    braincoins_novo = aluno_novo.ler_braincoin
+
+    novos_dados = []
+    atualizado = False
+
+    for aluno in dados:
+        if aluno["nome"] == nome_novo:
+            # Soma os braincoins
+            aluno["braincoins"] += braincoins_novo
+            atualizado = True
+            novos_dados.append(aluno)
+        else:
+            novos_dados.append(aluno)
+
+    if not atualizado:
+        # Caso não exista ainda, apenas adiciona o novo
+        novos_dados.append(to_dict(aluno_novo))
+
+    with open(arquivo, "w") as f:
+        json.dump(novos_dados, f, indent=4)
+
+
+
+def to_dict_torneio(torneio:torneio):  # conversão do objeto Torneio para dicionário
     return {
         "administrador": to_dict_adm(torneio.administrador),
         "nome_torneio": torneio.nome_torneio,
@@ -389,6 +480,7 @@ def salvar_torneio(torneio, arquivo="torneios.json"):
 
     print(f"Torneio '{torneio.nome_torneio}' salvo com sucesso em '{arquivo}'.")
 
+
 def from_dict_torneio(dado: dict):
     # Primeiro, criamos o administrador a partir do dicionário
     administrador = from_dict(dado["administrador"])  # Supondo que você tenha essa função de conversão para o administrador
@@ -439,22 +531,27 @@ def retornar_participantes_torneio(nome_torneio)->set:
 
 
 
-
-
+# def criar_torneio():
+# ** Teste Simples ************* 
+# Partindo do pressuposto que já tenha sido a instancia Lili da UFMG em pessoas.json que pode ser feita usando a função registrar de Aluno_Engenharia.py
 
 # lili=AE_Civil("Lili","UFMG")
 # lili.inserir_materias()
 # torneioo=torneio(AE_D_ADM(lili))
 
+# Se já tiver algum torneio
+
+
 torneioo= from_dict_torneio(buscar_torneio_por_nome("t"))
+
 # limpar_tela(0)
 # torneioo._adicionar_participante("caua")
-# print(to_dict_torneio(torneioo))
+# # print(to_dict_torneio(torneioo))
 # print('')
 # print('')
 # asc=input()
 # torneioo._adicionar_participante("Lili")
-# print(to_dict_torneio(torneioo))
+# # print(to_dict_torneio(torneioo))
 # asc=input()
 # print('')
 # print('')
