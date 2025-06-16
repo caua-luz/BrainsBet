@@ -184,6 +184,7 @@ class torneio():
                    
         self.Dias_passados=0
         self.Duracao_desafio=input("Qual sera a duracao do torneio em dias? ")
+        self._adicionar_participante()
         salvar_torneio(self)
         self.atualizar_no_arquivo()
 
@@ -511,6 +512,8 @@ def retornar_participantes_torneio(nome_torneio)->set:
         participantes.add(AE_D_Participante(from_dict(i)))
     return participantes
 
+
+
 #--------------FUNÇÕES QUE AUXILIAM O FUNCIONAMENTO DE TORNEIO----------------------
 
 # torneioo= from_dict_torneio(buscar_torneio_por_nome("tht"))
@@ -542,21 +545,21 @@ def retornar_participantes_torneio(nome_torneio)->set:
 # Se já tiver algum torneio
 
 
-torneioo= from_dict_torneio(buscar_torneio_por_nome("t"))
+# torneioo= from_dict_torneio(buscar_torneio_por_nome("t"))
 
-# limpar_tela(0)
-# torneioo._adicionar_participante("caua")
-# # print(to_dict_torneio(torneioo))
-# print('')
-# print('')
-# asc=input()
-# torneioo._adicionar_participante("Lili")
-# # print(to_dict_torneio(torneioo))
-# asc=input()
-# print('')
-# print('')
-torneioo.Registrar_Estudo()
-torneioo.Encerrar_Torneio()
+# # limpar_tela(0)
+# # torneioo._adicionar_participante("caua")
+# # # print(to_dict_torneio(torneioo))
+# # print('')
+# # print('')
+# # asc=input()
+# # torneioo._adicionar_participante("Lili")
+# # # print(to_dict_torneio(torneioo))
+# # asc=input()
+# # print('')
+# # print('')
+# torneioo.Registrar_Estudo()
+# torneioo.Encerrar_Torneio()
 
 # print(buscar_aluno_por_nome("c").nome)
 # for i in buscar_aluno_por_nome("c").materias_cursando:
