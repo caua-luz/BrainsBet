@@ -14,6 +14,16 @@ def to_dict(classe) -> dict:
         "instituicao": classe.instituicao,
         "curso": classe.curso,
         "braincoins": float(classe._braincoins),
+        "materias_cursando": [m.nome for m in classe.materias_cursando]  # apenas nomes
+    }
+
+def to_dict(classe) -> dict:
+    return {
+        "classe": classe.__class__.__name__,
+        "nome": classe.nome,
+        "instituicao": classe.instituicao,
+        "curso": classe.curso,
+        "braincoins": float(classe._braincoins),
         "materias_cursando": [m for m in classe.materias_cursando]  # apenas nomes
     }
 
@@ -121,6 +131,7 @@ class Aluno_Engenharia(ABC):
                         
 
     def inserir_materias(self)-> None:
+        limpar_tela(0)
         while(True):
             limpar_tela(1)
             print("Qual das materias abaixo deseja inserir?\n")
@@ -137,10 +148,11 @@ class Aluno_Engenharia(ABC):
             if quebra:
                 break
             else:
-                print("Nome invalido! insira novamente")       
+                print("Nome invalido! insira novamente")
+        input("\n\nInsira qualquer coisa para continuar")       
 
     def remover_materias(self)-> None:
-        limpar_tela(1)
+        limpar_tela(0)
         print("Qual das materias abaixo deseja Remover?\n")
         for p in self.materias_cursando:
             print(p.nome)
@@ -150,8 +162,10 @@ class Aluno_Engenharia(ABC):
                 if p.nome==materia:
                     break
         self.materias_cursando.discard(p)
+        input("\n\nInsira qualquer coisa para continuar")
     
     def alterar_materias(self)-> None:
+        limpar_tela(0)
         while True:
             opcao = input("Insira 'I' se deseja Inserir e 'R' se deseja Remover: ").strip().upper()
 
@@ -165,6 +179,7 @@ class Aluno_Engenharia(ABC):
 
         if opcao == "R":
             self.remover_materias()
+        input("\n\nInsira qualquer coisa para continuar")
 
 
 
@@ -240,8 +255,10 @@ class AE_D_Participante(AE_Desafio):
         self._braincoins_torneio=float(valor)
 
     def Retornar_BrainCoins_Torneio(self,posicao_torneio:int,numero_de_participantes:int,peso_materia:float)->float:
+        
         if(self.campeao==True):
             self.Set_braincoins_torneio=10*numero_de_participantes*peso_materia
+            print(f"O torneio rendeu a {self.nome} o total de {self.Get_braincoins_torneio} BrainCoins\n")
             return 10*numero_de_participantes*peso_materia
         else:
             self.Set_braincoins_torneio= (numero_de_participantes*peso_materia-posicao_torneio)/10
@@ -254,6 +271,8 @@ class AE_D_ADM(AE_Desafio):
 
     def Retornar_BrainCoins_Torneio(self)->float:
         self._braincoins+=10
+        print(f"O torneio rendeu a {self.nome} o total de {self.Get_braincoins_torneio} BrainCoins\n")
         return 10    
 
 # registrar()
+# remover_aluno_por_nome("Lili")
