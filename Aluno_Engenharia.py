@@ -3,8 +3,117 @@ import os
 import time
 import json
 
-from Materia import Materias_Eletrica,Materias_Aeroespacial_Civil_Mecanica
+from Materia import materia,Materias_Eletrica,Materias_Aeroespacial_Civil_Mecanica
 
+
+def atualizar_somando_braincoins(aluno_novo, arquivo="pessoas.json"):
+    try:
+        with open(arquivo, "r", encoding="utf-8") as f:
+            dados = json.load(f)
+    except FileNotFoundError:
+        dados = []
+
+    nome_novo = aluno_novo.nome
+    curso_novo = aluno_novo.curso
+    instituicao_nova = aluno_novo.instituicao
+    braincoins_novo = aluno_novo.ler_braincoin
+
+    total_braincoins = braincoins_novo
+    novos_dados = []
+    atualizado = False
+
+    for aluno in dados:
+        if (
+            aluno["nome"] == nome_novo and
+            aluno["curso"] == curso_novo and
+            aluno["instituicao"] == instituicao_nova
+        ):
+            total_braincoins += aluno.get("braincoins", 0.0)
+            atualizado = True
+        else:
+            novos_dados.append(aluno)
+
+    # Atualiza ou cria a entrada consolidada
+    aluno_dict = to_dict(aluno_novo)
+    aluno_dict["braincoins"] = total_braincoins
+    novos_dados.append(aluno_dict)
+
+    with open(arquivo, "w", encoding="utf-8") as f:
+        json.dump(novos_dados, f, indent=4, ensure_ascii=False)
+
+def from_dict(dado: dict):
+    # Mapeamento de classes
+    CLASSES = {
+        "AE_D_ADM": AE_D_ADM,
+        "AE_D_Participante": AE_D_Participante,
+        "AE_Eletrica": AE_Eletrica,
+        "AE_Civil": AE_Civil,
+        "AE_Aeroespacial": AE_Aeroespacial,
+        "AE_Mecanica": AE_Mecanica
+    }
+
+    # Criar a instância de aluno com os dados do dicionário
+    nome = dado.get("nome", "")
+    instituicao = dado.get("instituicao", "")
+    curso = dado.get("curso", "")
+    materias_cursando = dado.get("materias_cursando", [])
+
+    # Supondo que as subclasses de Aluno_Eng sejam instanciadas aqui
+    # Aqui você cria a instância correta de acordo com o curso do aluno
+    if curso == "Engenharia Eletrica":
+        aluno = AE_Eletrica(nome, instituicao)
+    elif curso == "Engenharia Civil":
+        aluno = AE_Civil(nome, instituicao)
+    elif curso == "Engenharia Aeroespacial":
+        aluno = AE_Aeroespacial(nome, instituicao)
+    elif curso == "Engenharia Mecanica":
+        aluno = AE_Mecanica(nome, instituicao)
+    else:
+        raise ValueError(f"Curso desconhecido: {curso}")
+
+    # Atribuir dados extras que não são passados no construtor
+    aluno._braincoins = dado.get("braincoins", 0)
+    aluno._BrainCoins_Torneio = dado.get("BrainCoins_Torneio", 0)
+    aluno.materias_cursando = set(materias_cursando)
+    aluno.campeao = dado.get("campeao")
+
+    # Verifica a classe do administrador ou participante e instancia corretamente
+    classe = dado.get("classe", None)
+    cls = CLASSES.get(classe, None)
+    
+    if not cls:
+        raise ValueError(f"Classe não encontrada: {classe}")
+    
+    # Agora passamos a instância de aluno para a classe de administrador ou participante
+    if classe == "AE_D_Participante":
+        return AE_D_Participante(aluno)
+    elif classe == "AE_D_ADM":
+        return AE_D_ADM(aluno)
+    
+    return aluno
+
+
+def buscar_aluno_por_nome(nome: str, arquivo="pessoas.json"):
+    try:
+
+        with open(arquivo, "r") as f:
+            dados = json.load(f)
+
+    except FileNotFoundError:
+        print("Arquivo não encontrado.")
+        return None
+    except json.JSONDecodeError:
+        print("Erro ao ler o conteúdo do arquivo JSON.")
+        return None
+
+    for aluno in dados:
+
+        if aluno["nome"] == nome:
+
+            return from_dict(aluno)
+
+    print(f"aluno com nome '{nome}' não encontrado.")
+    return None
 
 
 def to_dict(classe) -> dict:
@@ -53,6 +162,34 @@ def salvar_aluno(aluno):
     with open("pessoas.json", "w") as f:
         json.dump(dados, f, indent=4)
 
+def atualizar_aluno(aluno, arquivo="pessoas.json"):
+    try:
+        with open(arquivo, "r") as f:
+            dados = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        dados = []
+
+    aluno_dict = to_dict(aluno)
+    nome = aluno_dict.get("nome")
+    curso = aluno_dict.get("curso")
+    instituicao = aluno_dict.get("instituicao")
+
+    atualizado = False
+    novos_dados = []
+
+    for a in dados:
+        if a.get("nome") == nome and a.get("curso") == curso and a.get("instituicao") == instituicao:
+            novos_dados.append(aluno_dict)  # Substitui o antigo
+            atualizado = True
+        else:
+            novos_dados.append(a)
+
+    if not atualizado:
+        novos_dados.append(aluno_dict)  # Se não achou, adiciona como novo
+
+    with open(arquivo, "w") as f:
+        json.dump(novos_dados, f, indent=4)
+
 
 def limpar_tela(tempo:int)->None:
     # Se for Windows, usa 'cls'
@@ -65,34 +202,35 @@ def registrar_no_json(nome:str,instituicao:str,Curso:str)->None:
     match Curso:
         case "Eletrica":
             Registro=AE_Eletrica(nome,instituicao)
-            Registro.inserir_materias()
-            Registro.inserir_materias()
-            Registro.inserir_materias()
+            Registro._inserir_materias()
+            Registro._inserir_materias()
+            Registro._inserir_materias()
             salvar_aluno(Registro)
         case "Civil":
             Registro=AE_Civil(nome,instituicao)
-            Registro.inserir_materias()
-            Registro.inserir_materias()
-            Registro.inserir_materias()
+            Registro._inserir_materias()
+            Registro._inserir_materias()
+            Registro._inserir_materias()
             salvar_aluno(Registro)
         case "Mecanica":
             Registro=AE_Mecanica(nome,instituicao)
-            Registro.inserir_materias()
-            Registro.inserir_materias()
-            Registro.inserir_materias()
+            Registro._inserir_materias()
+            Registro._inserir_materias()
+            Registro._inserir_materias()
             salvar_aluno(Registro)
         case "Aeroespacial":
             Registro=AE_Aeroespacial(nome,instituicao)
-            Registro.inserir_materias()
-            Registro.inserir_materias()
-            Registro.inserir_materias()
+            Registro._inserir_materias()
+            Registro._inserir_materias()
+            Registro._inserir_materias()
             salvar_aluno(Registro)
 
 def registrar()->None:
+     limpar_tela(0)
      print("Ola! Bem Vindo ao BrainsBet")
      print("O seu aplicativo de incentivo ao estudo")
      limpar_tela(3)
-     Curso="0"
+     Curso=""
      nome=input("Para começarmos, qual o seu nome? ")
      instituicao=input("Qual a sua instituição? ")
      while(True):
@@ -130,8 +268,9 @@ class Aluno_Engenharia(ABC):
         self._braincoins=valor#+self.ler_braincoin
                         
 
-    def inserir_materias(self)-> None:
+    def _inserir_materias(self)->None:
         limpar_tela(0)
+        p=''
         while(True):
             limpar_tela(1)
             print("Qual das materias abaixo deseja inserir?\n")
@@ -143,15 +282,17 @@ class Aluno_Engenharia(ABC):
             for p in self.materias:
                     #materia existe
                     if p.nome==materia:
-                        self.materias_cursando.add(p)
                         quebra=True
             if quebra:
                 break
             else:
                 print("Nome invalido! insira novamente")
+
+        self.materias_cursando.add(p)
+        atualizar_aluno(buscar_aluno_por_nome(self.nome))
         input("\n\nInsira qualquer coisa para continuar")       
 
-    def remover_materias(self)-> None:
+    def _remover_materias(self)->None:
         limpar_tela(0)
         print("Qual das materias abaixo deseja Remover?\n")
         for p in self.materias_cursando:
@@ -162,9 +303,10 @@ class Aluno_Engenharia(ABC):
                 if p.nome==materia:
                     break
         self.materias_cursando.discard(p)
+        atualizar_aluno(buscar_aluno_por_nome(self.nome))
         input("\n\nInsira qualquer coisa para continuar")
     
-    def alterar_materias(self)-> None:
+    def _alterar_materias(self)->None:
         limpar_tela(0)
         while True:
             opcao = input("Insira 'I' se deseja Inserir e 'R' se deseja Remover: ").strip().upper()
@@ -175,11 +317,68 @@ class Aluno_Engenharia(ABC):
                  print("Opção inválida. Tente novamente.")
 
         if opcao == "I":
-           self.inserir_materias()
+           self._inserir_materias()
 
         if opcao == "R":
-            self.remover_materias()
+            self._remover_materias()
         input("\n\nInsira qualquer coisa para continuar")
+
+    def estudar(self)->None:
+        while(True):
+            limpar_tela(0)
+            loop=False
+            print("Você está cursando:")
+            for i in self.materias_cursando:
+                print(i)
+            nome=input("Qual o nome da materia que deseja estudar? \t")
+            for i in self.materias_cursando:
+                if nome==i:
+                   loop=True
+                   break
+            if loop:
+                break                    
+            else:
+                print("Esta materia não está sendo cursada insira outra")
+                limpar_tela(2)
+                
+        tempo=float(input("Por quantas horas?\t"))
+        self.modificar_braincoin+=float(0.01*tempo)
+        salvar_aluno(self)
+        input("Pressione qualquer coisa para continuar...")
+        limpar_tela(0)
+        atualizar_somando_braincoins(buscar_aluno_por_nome(self.nome))
+                
+    def buscar_torneios_do_aluno(self, arquivo="torneios.json")->None:
+        """
+        Retorna uma lista com os nomes dos torneios em que o aluno especificado participa.
+        
+        :param nome_aluno: Nome do aluno a ser buscado.
+        :param arquivo: Caminho para o arquivo JSON com os torneios.
+        :return: Lista de nomes de torneios.
+        """
+        nome_aluno=self.nome
+        try:
+            with open(arquivo, "r") as f:
+                torneios = json.load(f)
+        except FileNotFoundError:
+            print("Arquivo de torneios não encontrado.")
+            return []
+        except json.JSONDecodeError:
+            print("Erro ao ler o JSON de torneios.")
+            return []
+
+        torneios_do_aluno = []
+
+        for torneio in torneios:
+            for participante in torneio.get("participantes", []):
+                if participante.get("nome", "").lower() == nome_aluno.lower():
+                    torneios_do_aluno.append(torneio.get("nome_torneio"))
+                    break  # Não precisa verificar mais participantes
+
+        return torneios_do_aluno
+
+
+                
 
 
 
