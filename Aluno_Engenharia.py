@@ -271,6 +271,7 @@ class Aluno_Engenharia(ABC):
     def _inserir_materias(self)->None:
         limpar_tela(0)
         p=''
+        materia=''
         while(True):
             limpar_tela(1)
             print("Qual das materias abaixo deseja inserir?\n")
@@ -284,44 +285,63 @@ class Aluno_Engenharia(ABC):
                     if p.nome==materia:
                         quebra=True
             if quebra:
+                print(f"A materia é {materia}")
+                self.materias_cursando.add(materia)
+                print("Agora voce esta cursando:")
+                for i in self.materias_cursando:
+                    print(i)
+                
+                atualizar_aluno(self)
+                input("\n\nInsira qualquer coisa para continuar")                 
                 break
             else:
-                print("Nome invalido! insira novamente")
-
-        self.materias_cursando.add(p)
-        atualizar_aluno(buscar_aluno_por_nome(self.nome))
-        input("\n\nInsira qualquer coisa para continuar")       
-
+                    print("Nome invalido! insira novamente")
     def _remover_materias(self)->None:
         limpar_tela(0)
-        print("Qual das materias abaixo deseja Remover?\n")
-        for p in self.materias_cursando:
-            print(p.nome)
-        materia=input()
-        for p in self.materias_cursando:
-                #materia existe
-                if p.nome==materia:
-                    break
-        self.materias_cursando.discard(p)
-        atualizar_aluno(buscar_aluno_por_nome(self.nome))
-        input("\n\nInsira qualquer coisa para continuar")
+        p=''
+        materia=''
+        while(True):
+            limpar_tela(1)
+            print("Qual das materias abaixo deseja remover?\n")
+            for p in self.materias_cursando:
+                    print(p)
+            materia=input()
+
+            quebra=False
+            for p in self.materias_cursando:
+                    #materia existe
+                    if p==materia:
+                        quebra=True
+            if quebra:
+                print(f"A materia é {materia}")
+                self.materias_cursando.discard(materia)
+                print("Agora voce esta cursando:")
+                for i in self.materias_cursando:
+                    print(i)
+                
+                atualizar_aluno(self)
+                input("\n\nInsira qualquer coisa para continuar")                 
+                break
+            else:
+                    print("Nome invalido! insira novamente")      
+
     
     def _alterar_materias(self)->None:
         limpar_tela(0)
         while True:
-            opcao = input("Insira 'I' se deseja Inserir e 'R' se deseja Remover: ").strip().upper()
+            opcao = input("Deseja 'Inserir' ou 'Remover'?\t")
 
-            if opcao in ('I', 'R'):
+            if opcao in ("Inserir", "Remover"):
                 break
             else:
                  print("Opção inválida. Tente novamente.")
 
-        if opcao == "I":
+        if opcao == "Inserir":
            self._inserir_materias()
 
-        if opcao == "R":
+        if opcao == "Remover":
             self._remover_materias()
-        input("\n\nInsira qualquer coisa para continuar")
+        
 
     def estudar(self)->None:
         while(True):
@@ -342,7 +362,8 @@ class Aluno_Engenharia(ABC):
                 limpar_tela(2)
                 
         tempo=float(input("Por quantas horas?\t"))
-        self.modificar_braincoin+=float(0.01*tempo)
+        self.modificar_braincoin=float(0.01*tempo)+self.ler_braincoin
+        print(f"O estudo rendeu {float(0.01*tempo)+self.ler_braincoin} BrainCoins")
         salvar_aluno(self)
         input("Pressione qualquer coisa para continuar...")
         limpar_tela(0)
