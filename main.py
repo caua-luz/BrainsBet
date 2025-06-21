@@ -1,8 +1,8 @@
 from Aluno_Engenharia import AE_D_Participante,AE_Aeroespacial,AE_Civil,AE_D_ADM,AE_Eletrica,AE_Mecanica
-from Aluno_Engenharia import limpar_tela,registrar
+from Aluno_Engenharia import limpar_tela,registrar,remover_aluno_por_nome
 from typing import Type
 from Materia import Materias_Eletrica,Materias_Aeroespacial_Civil_Mecanica
-from Torneio import torneio,buscar_torneio_por_nome,buscar_aluno_por_nome,from_dict_torneio
+from Torneio import torneio,buscar_torneio_por_nome,buscar_aluno_por_nome,from_dict_torneio,remover_aluno_no_torneio_por_nome,retornar_participantes_torneio
 
 import json
 
@@ -13,6 +13,7 @@ import sys
     
 
 def login(nome:str)->None:
+    limpar_tela(0)
     while(True):
         nome=input("Qual o seu nome? ")
         if buscar_aluno_por_nome(nome)==None:
@@ -20,11 +21,9 @@ def login(nome:str)->None:
             limpar_tela(2)
         else:
             break
-    looby(nome)
-    pass
+    return looby(nome)
+    
 
-# def registrar()->None:
-#     pass
 
 def Inicio()->None:
     while(True):
@@ -89,7 +88,7 @@ def mostradisplay_lobby(nome:str):
             case "Ajuda":
                 tela_ajuda(nome)
             case "Multiplayer":
-                multiplayer()
+                multiplayer(nome)
             case "Solo":
                 solo(nome)
             case "Alterar Materia":
@@ -156,18 +155,22 @@ def acessar_torneio(nome:str)->None:
 def criar_torneio(nome:str)->None:
     pass
 
+def funcoes_adm(nome:str)->None:
+    pass
+
 def multiplayer(nome:str):
 
     acessar='Acessar Torneios'
     criar='Criar Torneio'
+    adm='Funções Administrador'
     voltar='Voltar ao Looby'
 
-    escolhas=[acessar,voltar,criar]
+    escolhas=[acessar,voltar,criar,adm]
 
 
     limpar_tela(0)
     while(True):
-        escolha=input("O que deseja fazer?\n 'Acessar Torneios', 'Criar Torneios' ou 'Voltar ao Looby'?")
+        escolha=input("O que deseja fazer?\n 'Acessar Torneios', 'Funções Administrador', 'Criar Torneio' ou 'Voltar ao Looby'?\t")
         if escolha in escolhas:
             break
         else:
@@ -177,6 +180,8 @@ def multiplayer(nome:str):
     match escolha:
         case 'Acessar Torneios':
             acessar_torneio(nome)
+        case 'Funções Administrador':
+            funcoes_adm(nome)
         case 'Criar Torneio':
             criar_torneio(nome)
         case 'Voltar ao Looby':
@@ -184,7 +189,10 @@ def multiplayer(nome:str):
         
 def acessar_torneio(nome:str)->None:
     aluno=buscar_aluno_por_nome(nome)
-    torneios_do_aluno=aluno.buscar_torneios_do_aluno(nome)
+    torneios_do_aluno=aluno.buscar_torneios_do_aluno()
+    print("Voce esta nos seguintes torneios:")
+    for i in  torneios_do_aluno:   
+        print(i)
     while(True):
         aluno.buscar_torneios_do_aluno()
         nome_torneio=input("Insira o nome do torneio: ")
@@ -195,7 +203,7 @@ def acessar_torneio(nome:str)->None:
             break
     limpar_tela(0)
     while(True):
-        escolha=input("O que deseja fazer?\n'Estudar' 'Exibir dados'?")
+        escolha=input("O que deseja fazer?\n'Estudar' 'Exibir dados'?\t")
         if escolha=='Estudar' or escolha=='Exibir dados':
             break
         else:
@@ -210,13 +218,81 @@ def acessar_torneio(nome:str)->None:
             torneioo.Mostrar_Dados_Torneio()
             looby(nome)
 
+def funcoes_adm(nome:str)->None:
+    limpar_tela(0)
+    aluno=buscar_aluno_por_nome(nome)
+    administracoes=aluno.buscar_torneios_administrados_por()
+    if len(administracoes)==0:
+        print("Voce não administra nenhum torneio registrado")
+        limpar_tela(3)
+        return looby(nome)
+
+    while(True):
+        print(f"O estudante {aluno.nome} administra os seguintes torneios:\n")
+        for i in administracoes:
+            torneioo=from_dict_torneio(buscar_torneio_por_nome(i))
+            print(f"Nome: {torneioo.nome_torneio} Materia: {torneioo.materia_torneio}")
+            print(f"Nº Participantes: {len(torneioo.participantes)} Dias de torneio/Dias passados: {torneioo.Duracao_desafio}/{torneioo.Dias_passados}\n")        
+        nome_torneio=input("Insira o nome do torneio que deseja acessar como Administrador\t")
+        if nome_torneio in administracoes:
+            break
+        else:
+            print("Nome invalido! Insira novamente")
+    
+    torneioo=from_dict_torneio(buscar_torneio_por_nome(i))
+    torneioo.Encerrar_Torneio()
+    return looby(nome)
+
+    # while(True):
+    #     print(f"O que deseja fazer como Administrador/a do torneio {torneioo.nome_torneio}?")
+    #     print("'Adicionar Participante'\t'Remover Participante'\t'Passar Dia'\t'Encerrar Torneio'")
+    #     acao=input()
+    #     if acao in ('Adicionar Participante','Passar Dia','Encerrar Torneio'):
+    #         break
+    #     else:
+    #         print("Ação inválida! Insira novamente\nDica: Insira literalmente a ação entre as aspas")
+    
+    # match acao:
+    #     case 'Remover Participante':
+    #         removido=''
+    #         nomes_participantes=set([])
+    #         while(True):
+    #             print("Os participantes do torneio são:") 
+    #             for i in torneioo.participantes:
+    #                 print(i.nome)
+    #                 nomes_participantes.add(i.nome)
+    #             removido=input("Insira um dos nomes acima")
+    #             if removido in nomes_participantes:
+    #                 break
+    #             else:
+    #                 print("Nome invalido, insira novamente")
+    #                 limpar_tela(3)
+                
+    #         remover_aluno_no_torneio_por_nome(removido)
+    #         return looby(nome)
+
+    #     case 'Adicionar Participante':
+    #         torneioo._adicionar_participante()
+    #         return looby(nome)
+        
+    #     case 'Passar Dias':
+    #         torneioo.Dias_passados+=1
+    #         print(f"Já se passaram {torneioo.Dias_passados} dos {torneioo.Duracao_desafio} dias do torneio")
+    #         input("Pressione ENTER para continuar...")
+    #         limpar_tela(0)
+    #         return looby(nome)
+        
+    #     case 'Encerrar Torneio':
+    #         torneioo.Encerrar_Torneio()
+    #         return looby(nome)
+    
 
 def criar_torneio(nome:str)->None:
     aluno=buscar_aluno_por_nome(nome)
     torneioo=torneio(AE_D_ADM(aluno))
     while(True):
         
-        escolha=input("Deseja dicionar mais participantes?\n'Sim'\t'Nao")
+        escolha=input("Deseja dicionar mais participantes?\n'Sim'\t'Nao'\n")
         if escolha=='Sim' or escolha == 'Nao':
             if escolha=='Sim':
                 torneioo._adicionar_participante()
@@ -224,7 +300,7 @@ def criar_torneio(nome:str)->None:
             break
                 
         else:
-            print("Entrada invalida\nInsira outra coisa")
+            print("Entrada invalida\nInsira outra coisa\nREPARE: nao tem acento em Nao")
             limpar_tela(2)
         looby(nome)
     
