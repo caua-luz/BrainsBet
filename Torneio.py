@@ -166,11 +166,11 @@ class torneio():
         while(True):
             print("Matérias que o administrador está cursando:")
             for mmateria in self.administrador.materias_cursando:
-                print(mmateria.nome)
-            maateria=input("Insira qual será a matéria tema do torneio das opcoes acima ")
+                print(mmateria)
+            maateria=input("Insira qual será a matéria tema do torneio das opcoes acima:\t")
             encontrou_materia=False
             for mmateria in self.administrador.materias_cursando:                
-                if mmateria.nome==maateria:
+                if mmateria==maateria:
                     self.materia_torneio=maateria
                     encontrou_materia=True
                     break
@@ -271,14 +271,16 @@ class torneio():
 
     def Mostrar_Dados_Torneio(self)->None:
         limpar_tela(0)
-        participantes=retornar_participantes_torneio(self.nome_torneio)
+        torneioo=from_dict_torneio(buscar_torneio_por_nome(self.nome_torneio))
+        participantes=torneioo.participantes       
+            
         participantes = sorted(participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
-        print(f"O torneio {self.nome_torneio} tem os seguintes dados: ")
-        print(f"Administrador {self.administrador.nome}")
-        print(f"E da materia {self.materia_torneio}")
+        print(f"O torneio {torneioo.nome_torneio} tem os seguintes dados: ")
+        print(f"Administrador {torneioo.administrador.nome}")
+        print(f"E da materia {torneioo.materia_torneio}")
         print("Tem os participantes: ")
-        for i in participantes:
-            print(f"\t{i.nome} tem {i.Get_braincoins_torneio}")
+        for ii, i in enumerate(participantes,start=1):
+            print(f"\t{ii}º lugar- {i.nome} com {i.Get_braincoins_torneio} BrainCoins")
         input("\n\nInsira qualquer coisa para continuar")
 
     @classmethod
@@ -299,19 +301,23 @@ class torneio():
         return torneio
 
 
-    def _adicionar_participante(self, nome_aluno: str):
+    def _adicionar_participante(self):
         """
         Adiciona um aluno ao set de participantes do torneio, buscando-o em pessoas.json.
         """
-        limpar_tela(0)
-        aluno = AE_D_Participante(buscar_aluno_por_nome(nome_aluno))
-        if aluno is None:
-            print(f"Aluno '{nome_aluno}' não encontrado em pessoas.json.")
-            return
+        while(True):
+            nome_aluno=input("Insira o nome do aluno que será adicionado:\t")
+            limpar_tela(0)
+            aluno = AE_D_Participante(buscar_aluno_por_nome(nome_aluno))
+            if aluno is None:
+                print(f"Aluno '{nome_aluno}' não encontrado em pessoas.json.")
+                return
 
-        if aluno in self.participantes:
-            print(f"O aluno '{nome_aluno}' já está participando deste torneio.")
-            return
+            if aluno in self.participantes:
+                print(f"O aluno '{nome_aluno}' já está participando deste torneio.")
+                return
+            else:
+                break
 
         self.participantes.add(aluno)
         print(f"Aluno '{nome_aluno}' adicionado com sucesso ao torneio '{self.nome_torneio}'.")
@@ -481,6 +487,36 @@ def salvar_torneio(torneio, arquivo="torneios.json"):
 
     print(f"Torneio '{torneio.nome_torneio}' salvo com sucesso em '{arquivo}'.")
 
+def from_dict_participante(dado: dict) -> AE_D_Participante:
+    nome = dado.get("nome", "")
+    instituicao = dado.get("instituicao", "")
+    curso = dado.get("curso", "")
+    materias_cursando = dado.get("materias_cursando", [])
+    braincoins = dado.get("braincoins", 0)
+    braincoins_torneio = dado.get("BrainCoins_Torneio", 0)
+    campeao = dado.get("Campeao", False)
+
+    # Criação da instância base conforme o curso
+    if curso == "Engenharia Eletrica":
+        base = AE_Eletrica(nome, instituicao)
+    elif curso == "Engenharia Civil":
+        base = AE_Civil(nome, instituicao)
+    elif curso == "Engenharia Aeroespacial":
+        base = AE_Aeroespacial(nome, instituicao)
+    elif curso == "Engenharia Mecanica":
+        base = AE_Mecanica(nome, instituicao)
+    else:
+        raise ValueError(f"Curso desconhecido: {curso}")
+
+    base._braincoins = braincoins
+    base.materias_cursando = set(materias_cursando)
+
+    participante = AE_D_Participante(base)
+    participante.Set_braincoins_torneio = braincoins_torneio
+    participante.campeao = campeao
+
+    return participante
+
 
 def from_dict_torneio(dado: dict):
     # Primeiro, criamos o administrador a partir do dicionário
@@ -499,7 +535,7 @@ def from_dict_torneio(dado: dict):
     # Converte os participantes para um set de objetos
     torneioo.participantes = set()
     for p in dado.get("participantes", []):
-        participante = from_dict(p)  # Supondo que você tenha uma função `from_dict` para participantes
+        participante = from_dict_participante(p)  # Supondo que você tenha uma função `from_dict` para participantes
         torneioo.participantes.add(participante)
 
     return torneioo
