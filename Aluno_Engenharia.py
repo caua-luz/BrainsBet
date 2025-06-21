@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import os
 import time
 import json
+from typing import List
 
 from Materia import materia,Materias_Eletrica,Materias_Aeroespacial_Civil_Mecanica
 
@@ -136,18 +137,7 @@ def to_dict(classe) -> dict:
         "materias_cursando": [m for m in classe.materias_cursando]  # apenas nomes
     }
 
-def remover_aluno_por_nome(nome: str, arquivo="pessoas.json"):
-    try:
-        with open(arquivo, "r") as f:
-            dados = json.load(f)
-    except FileNotFoundError:
-        print("Arquivo não encontrado.")
-        return
 
-    novos_dados = [aluno for aluno in dados if aluno["nome"] != nome]
-
-    with open(arquivo, "w") as f:
-        json.dump(novos_dados, f, indent=4)
 
 
 def salvar_aluno(aluno):
@@ -157,10 +147,24 @@ def salvar_aluno(aluno):
     except FileNotFoundError:
         dados = []
 
-    dados.append(to_dict(aluno))
+    aluno_dict = to_dict(aluno)
+
+    # Verifica se já existe um aluno com mesmo nome, curso e instituição
+    for existente in dados:
+        if (
+            existente["nome"] == aluno_dict["nome"] and
+            existente["curso"] == aluno_dict["curso"] and
+            existente["instituicao"] == aluno_dict["instituicao"]
+        ):
+            print(f"Aluno '{aluno_dict['nome']}' já está salvo. Ignorando duplicata.")
+            return
+
+    dados.append(aluno_dict)
 
     with open("pessoas.json", "w") as f:
         json.dump(dados, f, indent=4)
+
+    print(f"Aluno '{aluno_dict['nome']}' salvo com sucesso.")
 
 def atualizar_aluno(aluno, arquivo="pessoas.json"):
     try:
@@ -197,6 +201,18 @@ def limpar_tela(tempo:int)->None:
     time.sleep(tempo)
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def remover_aluno_por_nome(nome: str, arquivo="pessoas.json"):
+    try:
+        with open(arquivo, "r") as f:
+            dados = json.load(f)
+    except FileNotFoundError:
+        print("Arquivo não encontrado.")
+        return
+
+    novos_dados = [aluno for aluno in dados if aluno["nome"] != nome]
+
+    with open(arquivo, "w") as f:
+        json.dump(novos_dados, f, indent=4)
 
 def registrar_no_json(nome:str,instituicao:str,Curso:str)->None:
     match Curso:
@@ -224,6 +240,7 @@ def registrar_no_json(nome:str,instituicao:str,Curso:str)->None:
             Registro._inserir_materias()
             Registro._inserir_materias()
             salvar_aluno(Registro)
+    
 
 def registrar()->None:
      limpar_tela(0)
@@ -266,7 +283,36 @@ class Aluno_Engenharia(ABC):
     @modificar_braincoin.setter
     def modificar_braincoin(self,valor)->None:
         self._braincoins=valor#+self.ler_braincoin
-                        
+
+
+    def buscar_torneios_administrados_por(self, arquivo="torneios.json") -> List[str]:
+        instancia_ae= self
+        nome_aluno = instancia_ae.nome
+        curso_aluno = instancia_ae.curso
+        instituicao_aluno = instancia_ae.instituicao
+        torneios_administrados = []
+
+        try:
+            with open(arquivo, "r") as f:
+                dados = json.load(f)
+        except FileNotFoundError:
+            print(f"Arquivo '{arquivo}' não encontrado.")
+            return []
+        except json.JSONDecodeError:
+            print(f"Erro ao decodificar o JSON em '{arquivo}'.")
+            return []
+
+        for torneio in dados:
+            adm = torneio.get("administrador", {})
+            if (
+                adm.get("nome") == nome_aluno and
+                adm.get("curso") == curso_aluno and
+                adm.get("instituicao") == instituicao_aluno
+            ):
+                torneios_administrados.append(torneio.get("nome_torneio"))
+
+        return torneios_administrados
+                    
 
     def _inserir_materias(self)->None:
         limpar_tela(0)
