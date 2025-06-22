@@ -408,12 +408,14 @@ class Aluno_Engenharia(ABC):
                 limpar_tela(2)
                 
         tempo=float(input("Por quantas horas?\t"))
-        self.modificar_braincoin=float(0.01*tempo)+self.ler_braincoin
+        self.modificar_braincoin+=float(0.01*tempo)#+self.ler_braincoin
         print(f"O estudo rendeu {float(0.01*tempo)+self.ler_braincoin} BrainCoins")
-        salvar_aluno(self)
+        print(f"{self.nome} está com {self.ler_braincoin} BrainCoins agora")
+        #salvar_aluno(self)
+        atualizar_somando_braincoins(self)
         input("Pressione qualquer coisa para continuar...")
         limpar_tela(0)
-        atualizar_somando_braincoins(buscar_aluno_por_nome(self.nome))
+        
                 
     def buscar_torneios_do_aluno(self, arquivo="torneios.json")->None:
         """
@@ -541,4 +543,5 @@ class AE_D_ADM(AE_Desafio):
         return 10    
 
 # registrar()
-# remover_aluno_por_nome("Lili")
+# input("Começar...")
+# buscar_aluno_por_nome('1').estudar()
