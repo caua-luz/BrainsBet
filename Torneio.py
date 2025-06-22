@@ -112,7 +112,6 @@ def remover_aluno_no_torneio_por_nome(nome: str,torneio, arquivo="torneio.json")
     torneio.participantes=participantes
     torneio.atualizar_no_arquivo()
 
-
 def buscar_aluno_por_nome(nome: str, arquivo="pessoas.json"):
     try:
 
@@ -188,7 +187,6 @@ class torneio():
         salvar_torneio(self)
         self.atualizar_no_arquivo()
 
-
     def atualizar_no_arquivo(self, arquivo="torneios.json"):
         """
         Atualiza este torneio no arquivo JSON com base no nome do torneio.
@@ -221,7 +219,6 @@ class torneio():
             json.dump(torneios, f, indent=4)
 
         print(f"Torneio '{self.nome_torneio}' atualizado com sucesso no arquivo.")
-
 
     def Registrar_Estudo(self) -> None:
         limpar_tela(0)
@@ -300,7 +297,6 @@ class torneio():
 
         return torneio
 
-
     def _adicionar_participante(self):
         """
         Adiciona um aluno ao set de participantes do torneio, buscando-o em pessoas.json.
@@ -323,8 +319,6 @@ class torneio():
         print(f"Aluno '{nome_aluno}' adicionado com sucesso ao torneio '{self.nome_torneio}'.")
         self.atualizar_no_arquivo()
         input("\n\nInsira qualquer coisa para continuar")
-
-
 
     def Encerrar_Torneio(self)->None:
         limpar_tela(0)
@@ -364,10 +358,6 @@ class torneio():
         input("\n\nInsira qualquer coisa para continuar")
 
 
-    
-
-        
-
 
 #--------------FUNÇÕES QUE AUXILIAM O FUNCIONAMENTO DE TORNEIO----------------------
 
@@ -401,7 +391,6 @@ def excluir_torneio(torneio_dict, arquivo="torneios.json"):
 
     print(f"Torneio '{nome}' removido com sucesso do arquivo.")
 
-
 def atualizar_somando_braincoins(aluno_novo, arquivo="pessoas.json"):
     try:
         with open(arquivo, "r") as f:
@@ -430,8 +419,6 @@ def atualizar_somando_braincoins(aluno_novo, arquivo="pessoas.json"):
 
     with open(arquivo, "w") as f:
         json.dump(novos_dados, f, indent=4)
-
-
 
 def to_dict_torneio(torneio:torneio):  # conversão do objeto Torneio para dicionário
     return {
@@ -517,7 +504,6 @@ def from_dict_participante(dado: dict) -> AE_D_Participante:
 
     return participante
 
-
 def from_dict_torneio(dado: dict):
     # Primeiro, criamos o administrador a partir do dicionário
     administrador = from_dict(dado["administrador"])  # Supondo que você tenha essa função de conversão para o administrador
@@ -548,90 +534,4 @@ def retornar_participantes_torneio(nome_torneio)->set:
         participantes.add(AE_D_Participante(from_dict(i)))
     return participantes
 
-
-
 #--------------FUNÇÕES QUE AUXILIAM O FUNCIONAMENTO DE TORNEIO----------------------
-
-# torneioo= from_dict_torneio(buscar_torneio_por_nome("tht"))
-# torneioo.Mostrar_Dados_Torneio()
-# torneioo.Registrar_Estudo()
-# for i in torneioo.participantes:
-#     print(i.nome)
-#     print(i.Set_braincoins_torneio)
-
-# for i in torneioo.participantes:
-
-#     print(i.nome)
-#     i.Set_braincoins_torneio=1+i.Set_braincoins_torneio
-#     print(i.Set_braincoins_torneio)    
-# print(to_dict_torneio(torneioo))
-# torneioo.atualizar_no_arquivo()
-
-
-
-
-# def criar_torneio():
-# ** Teste Simples ************* 
-# Partindo do pressuposto que já tenha sido a instancia Lili da UFMG em pessoas.json que pode ser feita usando a função registrar de Aluno_Engenharia.py
-
-# lili=AE_Civil("Lili","UFMG")
-# lili.inserir_materias()
-# torneioo=torneio(AE_D_ADM(lili))
-
-# Se já tiver algum torneio
-
-
-# torneioo= from_dict_torneio(buscar_torneio_por_nome("t"))
-
-# # limpar_tela(0)
-# # torneioo._adicionar_participante("caua")
-# # # print(to_dict_torneio(torneioo))
-# # print('')
-# # print('')
-# # asc=input()
-# # torneioo._adicionar_participante("Lili")
-# # # print(to_dict_torneio(torneioo))
-# # asc=input()
-# # print('')
-# # print('')
-# torneioo.Registrar_Estudo()
-# torneioo.Encerrar_Torneio()
-
-# print(buscar_aluno_por_nome("c").nome)
-# for i in buscar_aluno_por_nome("c").materias_cursando:
-#     print(i.nome)
-# print("\n")
-# print(buscar_aluno_por_nome("C").nome)
-# for i in buscar_aluno_por_nome("C").materias_cursando:
-#     print(i.nome)    
-
-
-
-
-    
-            
-
-# participantes=retornar_participantes_torneio("tht")
-# participantes = sorted(participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
-# win
-# for i in participantes:
-#     print(f"O vencedor é \t{i.nome} com {i.Get_braincoins_torneio} BrainCoins do Torneio")
-#     win=i
-#     win._campeao=True
-# win._Retornar_BrainCoins_Torneio(1,len(self.participantes),self.materia_torneio.peso) 
-# for i in participantes:
-#     if not i._campeao:
-#         i._Retornar_BrainCoins_Torneio(1,len(self.participantes),self.materia_torneio.peso) 
-
-
-# for i in participantes:
-#     if i.nome==nome:
-#         retorno=i
-#         break
-# print(i)
-# print(i.nome) 
-# print(i._braincoins) 
-# print(i.Get_braincoins_torneio)
-
-
-# print(torneioo.administrador)
