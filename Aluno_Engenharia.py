@@ -7,6 +7,8 @@ from typing import List
 from Materia import materia,Materias_Eletrica,Materias_Aeroespacial_Civil_Mecanica
 
 
+# ---------- Funções Auxiliares -------------------------------------------------------
+
 def atualizar_somando_braincoins(aluno_novo, arquivo="pessoas.json"):
     try:
         with open(arquivo, "r", encoding="utf-8") as f:
@@ -93,7 +95,6 @@ def from_dict(dado: dict):
     
     return aluno
 
-
 def buscar_aluno_por_nome(nome: str, arquivo="pessoas.json"):
     try:
 
@@ -116,7 +117,6 @@ def buscar_aluno_por_nome(nome: str, arquivo="pessoas.json"):
     print(f"aluno com nome '{nome}' não encontrado.")
     return None
 
-
 def to_dict(classe) -> dict:
     return {
         "classe": classe.__class__.__name__,
@@ -124,21 +124,27 @@ def to_dict(classe) -> dict:
         "instituicao": classe.instituicao,
         "curso": classe.curso,
         "braincoins": float(classe._braincoins),
-        "materias_cursando": [m.nome for m in classe.materias_cursando]  # apenas nomes
+        "materias_cursando": [m.nome for m in classe.materias_cursando]  
     }
 
-def to_dict(classe) -> dict:
-    return {
-        "classe": classe.__class__.__name__,
-        "nome": classe.nome,
-        "instituicao": classe.instituicao,
-        "curso": classe.curso,
-        "braincoins": float(classe._braincoins),
-        "materias_cursando": [m for m in classe.materias_cursando]  # apenas nomes
-    }
+def limpar_tela(tempo:int)->None:
+    # Se for Windows, usa 'cls'
+    # Se for Linux/macOS, usa 'clear'
+    time.sleep(tempo)
+    os.system('cls' if os.name == 'nt' else 'clear')
 
+def remover_aluno_por_nome(nome: str, arquivo="pessoas.json"):
+    try:
+        with open(arquivo, "r") as f:
+            dados = json.load(f)
+    except FileNotFoundError:
+        print("Arquivo não encontrado.")
+        return
 
+    novos_dados = [aluno for aluno in dados if aluno["nome"] != nome]
 
+    with open(arquivo, "w") as f:
+        json.dump(novos_dados, f, indent=4)
 
 def salvar_aluno(aluno):
     try:
@@ -194,25 +200,15 @@ def atualizar_aluno(aluno, arquivo="pessoas.json"):
     with open(arquivo, "w") as f:
         json.dump(novos_dados, f, indent=4)
 
-
-def limpar_tela(tempo:int)->None:
-    # Se for Windows, usa 'cls'
-    # Se for Linux/macOS, usa 'clear'
-    time.sleep(tempo)
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-def remover_aluno_por_nome(nome: str, arquivo="pessoas.json"):
-    try:
-        with open(arquivo, "r") as f:
-            dados = json.load(f)
-    except FileNotFoundError:
-        print("Arquivo não encontrado.")
-        return
-
-    novos_dados = [aluno for aluno in dados if aluno["nome"] != nome]
-
-    with open(arquivo, "w") as f:
-        json.dump(novos_dados, f, indent=4)
+def to_dict(classe) -> dict:
+    return {
+        "classe": classe.__class__.__name__,
+        "nome": classe.nome,
+        "instituicao": classe.instituicao,
+        "curso": classe.curso,
+        "braincoins": float(classe._braincoins),
+        "materias_cursando": [m for m in classe.materias_cursando]  # apenas nomes
+    }
 
 def registrar_no_json(nome:str,instituicao:str,Curso:str)->None:
     match Curso:
@@ -241,7 +237,6 @@ def registrar_no_json(nome:str,instituicao:str,Curso:str)->None:
             Registro._inserir_materias()
             salvar_aluno(Registro)
     
-
 def registrar()->None:
      limpar_tela(0)
      print("Ola! Bem Vindo ao BrainsBet")
@@ -261,7 +256,9 @@ def registrar()->None:
         else:
             print("Resposta Inválida")
             limpar_tela(1)
-    
+
+# ---------- Funções Auxiliares -------------------------------------------------------
+
 class Aluno_Engenharia(ABC):
     def __init__(self,nome,instituicao) -> None:
         
@@ -444,36 +441,29 @@ class Aluno_Engenharia(ABC):
                     torneios_do_aluno.append(torneio.get("nome_torneio"))
                     break  # Não precisa verificar mais participantes
 
-        return torneios_do_aluno
-
-
-                
-
-
+        return torneios_do_aluno         
+    
 
 class AE_Eletrica(Aluno_Engenharia):
     def __init__(self, nome,instituicao):
         super().__init__(nome,instituicao)
         self.curso="Engenharia Eletrica"
         self.materias=Materias_Eletrica
-        
-
+    
         
 class AE_Civil(Aluno_Engenharia):
     def __init__(self, nome,instituicao):
         super().__init__(nome,instituicao)
         self.curso="Engenharia Civil"
         self.materias=Materias_Aeroespacial_Civil_Mecanica
-        
-        
+               
 
 class AE_Aeroespacial(Aluno_Engenharia):
     def __init__(self, nome,instituicao):
         super().__init__(nome,instituicao)
         self.curso="Engenharia Aeroespacial"
         self.materias=Materias_Aeroespacial_Civil_Mecanica
-        
-                    
+                           
 
 class AE_Mecanica(Aluno_Engenharia):
     def __init__(self, nome,instituicao):
@@ -481,9 +471,7 @@ class AE_Mecanica(Aluno_Engenharia):
         self.curso="Engenharia Mecanica"
         self.materias=Materias_Aeroespacial_Civil_Mecanica
         
- 
-
-#Esta classe parte do principio que                             
+                              
 class AE_Desafio(AE_Aeroespacial,AE_Civil,AE_Eletrica,AE_Mecanica):
     def __init__(self,Aluno_Eng):
         self.nome=Aluno_Eng.nome
@@ -501,8 +489,6 @@ class AE_Desafio(AE_Aeroespacial,AE_Civil,AE_Eletrica,AE_Mecanica):
         pass 
 
   
-
-
 class AE_D_Participante(AE_Desafio):
     def __init__(self,Aluno_Eng):
         super().__init__(Aluno_Eng)
@@ -542,6 +528,3 @@ class AE_D_ADM(AE_Desafio):
         print(f"O torneio rendeu a {self.nome} o total de {self.Get_braincoins_torneio} BrainCoins\n")
         return 10    
 
-# registrar()
-# input("Começar...")
-# buscar_aluno_por_nome('1').estudar()
