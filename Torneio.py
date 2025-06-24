@@ -316,12 +316,17 @@ class torneio():
                 break
 
         self.participantes.add(aluno)
-        print(f"Aluno '{nome_aluno}' adicionado com sucesso ao torneio '{self.nome_torneio}'.")
         self.atualizar_no_arquivo()
-        input("\n\nInsira qualquer coisa para continuar")
+        limpar_tela(0)
+        print(f"Aluno '{nome_aluno}' adicionado com sucesso ao torneio '{self.nome_torneio}'.")
+        
 
     def Encerrar_Torneio(self)->None:
         limpar_tela(0)
+
+        self.administrador.Retornar_BrainCoins_Torneio()
+        atualizar_somando_braincoins(self.administrador)
+
         self.participantes = sorted(self.participantes, key=lambda p: p.Get_braincoins_torneio, reverse=True)
         
         for ii, i in enumerate(self.participantes,start=1):
