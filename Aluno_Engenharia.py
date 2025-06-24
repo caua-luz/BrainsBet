@@ -281,7 +281,6 @@ class Aluno_Engenharia(ABC):
     def modificar_braincoin(self,valor)->None:
         self._braincoins=valor#+self.ler_braincoin
 
-
     def buscar_torneios_administrados_por(self, arquivo="torneios.json") -> List[str]:
         instancia_ae= self
         nome_aluno = instancia_ae.nome
@@ -308,8 +307,7 @@ class Aluno_Engenharia(ABC):
             ):
                 torneios_administrados.append(torneio.get("nome_torneio"))
 
-        return torneios_administrados
-                    
+        return torneios_administrados             
 
     def _inserir_materias(self)->None:
         limpar_tela(0)
@@ -339,6 +337,7 @@ class Aluno_Engenharia(ABC):
                 break
             else:
                     print("Nome invalido! insira novamente")
+    
     def _remover_materias(self)->None:
         limpar_tela(0)
         p=''
@@ -367,7 +366,6 @@ class Aluno_Engenharia(ABC):
                 break
             else:
                     print("Nome invalido! insira novamente")      
-
     
     def _alterar_materias(self)->None:
         limpar_tela(0)
@@ -383,8 +381,7 @@ class Aluno_Engenharia(ABC):
            self._inserir_materias()
 
         if opcao == "Remover":
-            self._remover_materias()
-        
+            self._remover_materias()     
 
     def estudar(self)->None:
         while(True):
@@ -412,8 +409,7 @@ class Aluno_Engenharia(ABC):
         atualizar_somando_braincoins(self)
         input("Pressione qualquer coisa para continuar...")
         limpar_tela(0)
-        
-                
+                      
     def buscar_torneios_do_aluno(self, arquivo="torneios.json")->None:
         """
         Retorna uma lista com os nomes dos torneios em que o aluno especificado participa.
@@ -488,7 +484,8 @@ class AE_Desafio(AE_Aeroespacial,AE_Civil,AE_Eletrica,AE_Mecanica):
     def Retornar_BrainCoins_Torneio(self)->float:
         pass 
 
-  
+
+
 class AE_D_Participante(AE_Desafio):
     def __init__(self,Aluno_Eng):
         super().__init__(Aluno_Eng)
@@ -516,7 +513,9 @@ class AE_D_Participante(AE_Desafio):
             return 10*numero_de_participantes*peso_materia
         else:
             self.Set_braincoins_torneio= (numero_de_participantes*peso_materia-posicao_torneio)/10
+            print(f"O torneio rendeu a {self.nome} o total de {self.Get_braincoins_torneio} BrainCoins\n")
             return (numero_de_participantes*peso_materia-posicao_torneio)/10
+
 
 class AE_D_ADM(AE_Desafio):
     def __init__(self,Aluno_Eng):
@@ -524,7 +523,10 @@ class AE_D_ADM(AE_Desafio):
         
 
     def Retornar_BrainCoins_Torneio(self)->float:
-        self._braincoins+=10
-        print(f"O torneio rendeu a {self.nome} o total de {self.Get_braincoins_torneio} BrainCoins\n")
+        
+        aluno=buscar_aluno_por_nome(self.nome)
+        aluno.modificar_braincoin+=10
+        atualizar_aluno(aluno)
+        print(f"O torneio rendeu a {self.nome} o total de 10 BrainCoins como Administrador\n")
         return 10    
 
