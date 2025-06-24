@@ -67,6 +67,7 @@ def alterar_materia(nome: str):
     looby(nome)
 
 def mostradisplay_lobby(nome:str):
+    
     opcoes = [
         "Solo",
         "Multiplayer",
@@ -223,12 +224,16 @@ def funcoes_adm(nome:str)->None:
 
     while(True):
         print(f"O estudante {aluno.nome} administra os seguintes torneios:\n")
+        print("Como Administrador, qual torneio você deseja remover?")
         for i in administracoes:
             torneioo=from_dict_torneio(buscar_torneio_por_nome(i))
             print(f"Nome: {torneioo.nome_torneio} Materia: {torneioo.materia_torneio}")
             print(f"Nº Participantes: {len(torneioo.participantes)} Dias de torneio/Dias passados: {torneioo.Duracao_desafio}/{torneioo.Dias_passados}\n")        
+        print("Caso nenhum insira 'Nenhum'")
         nome_torneio=input("Insira o nome do torneio que deseja acessar como Administrador\t")
-        if nome_torneio in administracoes:
+        if nome_torneio == 'Nenhum':
+            return looby(nome)
+        elif nome_torneio in administracoes:
             break
         else:
             print("Nome invalido! Insira novamente")
